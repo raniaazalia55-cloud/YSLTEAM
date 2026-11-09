@@ -1,12 +1,7 @@
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-class Config:
-    SECRET_KEY     = os.environ.get('SECRET_KEY', 'integrated_ipd_secret_2026')
-    MYSQL_HOST     = os.environ.get('MYSQL_HOST', 'localhost')
-    MYSQL_PORT     = int(os.environ.get('MYSQL_PORT', 3306))
-    MYSQL_USER     = os.environ.get('MYSQL_USER', 'root')
-    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
-    MYSQL_DB       = os.environ.get('MYSQL_DB', 'yslteam')
+MYSQL_HOST = os.getenv('MYSQLHOST', 'mysql.railway.internal')
+MYSQL_USER = os.getenv('MYSQLUSER', 'root')
+MYSQL_PASSWORD = os.getenv('MYSQLPASSWORD', 'zcpfSAJevVOUTOlxEVSXPFnUJyoQgmkW')
+MYSQL_DB = os.getenv('MYSQLDATABASE', 'railway')
+MYSQL_PORT = int(os.getenv('MYSQLPORT', 3306))
