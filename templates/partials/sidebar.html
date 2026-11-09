@@ -1,0 +1,75 @@
+{# Sidebar Navigation — ditulis 1x, dipakai di semua halaman via include #}
+<div class="sidebar d-flex flex-column py-2 shadow-sm">
+    <div class="sidebar-logo text-center">
+        I<span class="p-letter">P</span><span class="d-letter">D</span>
+    </div>
+
+    <div class="nav flex-column mt-2">
+        <div class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="bi bi-house-door-fill"></i> HOME
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="bi bi-mortarboard-fill"></i> EKI
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="bi bi-file-earmark-text-fill"></i> ONE SHEET PROFILE
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="bi bi-display"></i> IDP
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="/dashboard" class="nav-link {% if current_page == 'dashboard' %}active{% endif %}">
+                <i class="bi bi-hdd-stack-fill"></i> INTEGRATED DATABASE TRAINING
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="bi bi-clock-history"></i> HISTORY
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="bi bi-plus-circle-fill"></i> MASTER &amp; SET UP
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="/repository" class="nav-link {% if current_page == 'repository' %}active{% endif %}">
+                <i class="bi bi-folder-fill"></i> REPOSITORY (MASTER)
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="bi bi-calendar-event-fill"></i> COE
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="bi bi-archive-fill"></i> COMPETENCY DIRECTORY
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="bi bi-diagram-3-fill"></i> COMPETENCY MATRIX
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="bi bi-file-spreadsheet-fill"></i> RESUME COE
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-auto px-3 py-2 border-top">
+        <a href="/logout" class="btn btn-outline-danger btn-sm w-100">
+            <i class="bi bi-box-arrow-right me-1"></i> Logout
+        </a>
+    </div>
+</div>

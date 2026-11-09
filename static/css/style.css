@@ -1,0 +1,113 @@
+/* ============================================================
+   YSLTEAM IPD System — Custom Stylesheet
+   Terpusat di satu file, berlaku untuk semua halaman
+   ============================================================ */
+
+/* --- Layout Dasar --- */
+body {
+    font-size: 0.76rem;
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+    width: 220px;
+    background-color: #ffffff;
+    min-height: 100vh;
+    border-right: 1px solid #e9ecef;
+    flex-shrink: 0;
+}
+
+.sidebar-logo {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #4a90e2;
+    letter-spacing: 1px;
+    padding: 15px 20px;
+}
+
+.sidebar-logo span.p-letter { color: #e91e63; }
+.sidebar-logo span.d-letter { color: #fbc02d; }
+
+.sidebar .nav-item { padding: 2px 10px; }
+
+.sidebar .nav-link {
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 6px;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.sidebar .nav-link i {
+    font-size: 1rem;
+    color: #0d6efd;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    color: #0d6efd;
+    background-color: #eef5ff;
+}
+
+/* --- Konten Utama --- */
+.main-content {
+    flex: 1;
+    overflow-x: auto;
+    min-width: 0;
+}
+
+/* --- DataTable Header --- */
+table.dataTable thead th {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+/* --- Group Headers (Dashboard) --- */
+.group-header-repo {
+    background-color: #e3f2fd !important;
+    color: #0d6efd;
+    text-align: center;
+    font-weight: bold;
+}
+
+.group-header-coe {
+    background-color: #fff3cd !important;
+    color: #856404;
+    text-align: center;
+    font-weight: bold;
+}
+
+.group-header-plan {
+    background-color: #d1e7dd !important;
+    color: #0f5132;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* --- Badge Flag Evaluasi --- */
+.badge-flag {
+    font-size: 0.68rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+/* --- Banner Simulasi --- */
+.sim-banner {
+    background-color: #fff3cd;
+    color: #856404;
+    font-size: 0.75rem;
+    border: 1px dashed #ffeeba;
+}

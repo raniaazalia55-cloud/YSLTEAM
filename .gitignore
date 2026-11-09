@@ -1,0 +1,28 @@
+# Python Cache & Executables
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Environment Variables (Sensitif)
+.env
+
+# IDE / System
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Flask
+instance/
+.webassets-cache

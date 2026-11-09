@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}Integrated Database Training - IPD System{% endblock %}
+
+{% block content %}
+    <!-- Top Header -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h5 class="fw-bold text-dark m-0">Integrated Database Training</h5>
+            <small class="text-muted">Integrasi Repository Training, COE Schedule, &amp; Evaluasi Planning</small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            {% if session['role'] == 'HCD' %}
+            <button class="btn btn-success btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#addCoeModal">
+                <i class="bi bi-plus-circle-fill me-1"></i> Penjadwalan Batch COE Baru
+            </button>
+            {% endif %}
+            <span class="badge bg-primary px-3 py-2 text-uppercase">
+                <i class="bi bi-person-badge me-1"></i> {{ session['user_name'] }} ({{ session['role'] }})
+            </span>
+        </div>
+    </div>
+
+    <!-- Banner Mode Simulasi -->
+    <div class="alert sim-banner p-2 mb-3 d-flex align-items-center justify-content-between">
+        <span><i class="bi bi-info-circle-fill me-2"></i> <strong>MODE SIMULASI:</strong> Data dummy terenkripsi untuk pengujian prototipe IPD System (Tahun Operasional: 2026).</span>
+        <span class="badge bg-warning text-dark">Data Simulasi</span>
+    </div>
+
+    <!-- Tabel Utama -->
+    <div class="card border-0 shadow-sm p-3">
+        <div class="table-responsive">
+            <table id="trainingTable" class="table table-bordered table-hover align-middle w-100">
+                <thead>
+                    <tr>
+                        <th colspan="7" class="group-header-repo">MASTER REPOSITORY TRAINING</th>
+                        <th colspan="8" class="group-header-coe">COE SCHEDULE &amp; REALISASI (2026)</th>
+                        <th colspan="2" class="group-header-plan">EVALUASI PLANNING</th>
+                        {% if session['role'] == 'HCD' %}
+                        <th rowspan="2" class="bg-dark text-white text-center">ACTION</th>
+                        {% endif %}
+                    </tr>
+                    <tr class="table-light">
+                        <th>KODE</th>
+                        <th>FUNGSI</th>
+                        <th>LEVEL POSISI</th>
+                        <th>LEVEL TRAINING</th>
+                        <th>NAMA TRAINING</th>
+                        <th>COMPETENCY</th>
+                        <th>ID COMP</th>
+                        <th>BATCH</th>
+                        <th>STATUS COE</th>
+                        <th>RENCANA MULAI</th>
+                        <th>RENCANA SELESAI</th>
+                        <th>REALISASI MULAI</th>
+                        <th>REALISASI SELESAI</th>
+                        <th>PARTISIPAN</th>
+                        <th>PIC</th>
+                        <th>STATUS PLANNING</th>
+                        <th>FLAG EVALUASI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in trainings %}
+                    <tr>
+                        <td class="fw-bold text-primary">{{ row.kode_training }}</td>
+                        <td>{{ row.fungsi }}</td>
+                        <td>{{ row.level_posisi }} ({{ row.id_level_posisi }})</td>
+                        <td>{{ row.level_training }}</td>
+                        <td class="fw-semibold">{{ row.nama_training }}</td>
+                        <td>{{ row.competency }}</td>
+                        <td>{{ row.id_competency_level }}</td>
+                        <td class="text-center">{{ row.batch or '-' }}</td>
+                        <td class="text-center">
+                            {% if row.status_coe == 'Selesai' %}
+                                <span class="badge bg-success">Selesai</span>
+                            {% elif row.status_coe == 'Aktif' %}
+                                <span class="badge bg-primary">Aktif</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row.tgl_rencana_mulai or '-' }}</td>
+                        <td>{{ row.tgl_rencana_selesai or '-' }}</td>
+                        <td class="fw-bold">{{ row.tgl_realisasi_mulai or '-' }}</td>
+                        <td class="fw-bold">{{ row.tgl_realisasi_selesai or '-' }}</td>
+                        <td class="text-center">{{ row.jumlah_partisipan or 0 }}</td>
+                        <td>{{ row.pic or '-' }}</td>
+                        <td>{{ row.status_planning }}</td>
+                        <td>
+                            <span class="badge-flag {{ row.flag_class }}">{{ row.status_planning }}</span>
+                        </td>
+                        {% if session['role'] == 'HCD' %}
+                        <td class="text-center">
+                            <button class="btn btn-warning btn-sm text-white py-0 px-2"
+                                    onclick="openEditModal('{{ row.id_coe }}', '{{ row.kode_training }}', '{{ row.nama_training }}', '{{ row.batch }}', '{{ row.tgl_rencana_mulai }}', '{{ row.tgl_rencana_selesai }}', '{{ row.tgl_realisasi_mulai or '' }}', '{{ row.tgl_realisasi_selesai or '' }}', '{{ row.status_coe }}')">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm py-0 px-1 ms-1" onclick="confirmDelete('{{ row.id_coe }}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Penjadwalan Batch COE -->
+    <div class="modal fade" id="addCoeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-plus-circle-fill me-2"></i>Penjadwalan Batch COE Baru</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addCoeForm">
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <label class="form-label fw-bold m-0">Pilih Master Training (Dari Repository):</label>
+                            <select name="kode_training_select" class="form-select form-select-sm" required>
+                                <option value="">-- Pilih Training --</option>
+                                {% for repo in repository_list %}
+                                    <option value="{{ repo.kode_training }}">{{ repo.kode_training }} - {{ repo.nama_training }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label m-0 fw-bold">Nama Batch (contoh: B001, B002):</label>
+                                <input type="text" name="batch" class="form-control form-control-sm" placeholder="B001" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label m-0 fw-bold">Status COE:</label>
+                                <select name="status_coe" class="form-select form-select-sm">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Aktif">Aktif</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label m-0 fw-bold">Rencana Tanggal Mulai:</label>
+                                <input type="date" name="tgl_rencana_mulai" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label m-0 fw-bold">Rencana Tanggal Selesai:</label>
+                                <input type="date" name="tgl_rencana_selesai" class="form-control form-control-sm" required>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label m-0">Jumlah Partisipan:</label>
+                                <input type="number" name="jumlah_partisipan" class="form-control form-control-sm" placeholder="15">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label m-0">PIC / Penanggung Jawab:</label>
+                                <input type="text" name="pic" class="form-control form-control-sm" placeholder="Nama PIC">
+                            </div>
+                        </div>
+                        <div id="coe_alert_error" class="alert alert-danger py-1 px-2 mt-2 d-none"></div>
+                    </div>
+                    <div class="modal-footer py-1">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success btn-sm">Simpan Penjadwalan COE</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit / Reschedule -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-calendar-event me-2"></i>Edit &amp; Reschedule Jadwal Training</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="edit_id_coe" name="id_coe">
+                        <div class="mb-2">
+                            <label class="form-label fw-bold m-0">Training / Batch:</label>
+                            <div id="edit_info_training" class="text-primary fw-semibold"></div>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label m-0">Rencana Mulai:</label>
+                                <input type="text" id="edit_ren_mulai" class="form-control form-control-sm bg-light" readonly>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label m-0">Rencana Selesai:</label>
+                                <input type="text" id="edit_ren_selesai" class="form-control form-control-sm bg-light" readonly>
+                            </div>
+                        </div>
+                        <hr class="my-2">
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label m-0 fw-bold text-success">Realisasi Mulai:</label>
+                                <input type="date" id="edit_rea_mulai" name="tgl_realisasi_mulai" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label m-0 fw-bold text-success">Realisasi Selesai:</label>
+                                <input type="date" id="edit_rea_selesai" name="tgl_realisasi_selesai" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label m-0 fw-bold">Status COE:</label>
+                            <select id="edit_status_coe" name="status_coe" class="form-select form-select-sm">
+                                <option value="Pending">Pending</option>
+                                <option value="Aktif">Aktif</option>
+                                <option value="Selesai">Selesai</option>
+                            </select>
+                        </div>
+                        <div id="alert_error" class="alert alert-danger py-1 px-2 mt-2 d-none"></div>
+                    </div>
+                    <div class="modal-footer py-1">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Simpan Perubahan &amp; Generate Flag</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
