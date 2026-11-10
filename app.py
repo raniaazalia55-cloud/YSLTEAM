@@ -21,36 +21,6 @@ def get_db_connection():
         print(f"Database error: {e}")
         return None
 
-def ensure_columns_exist(conn):
-    """Memastikan seluruh kolom tambahan tersedia di tabel list_training tanpa error"""
-    cursor = conn.cursor()
-    columns = [
-        ("kode_training", "VARCHAR(50) DEFAULT '-'"),
-        ("nama_training", "VARCHAR(255) DEFAULT '-'"),
-        ("nama", "VARCHAR(255) DEFAULT '-'"),
-        ("fungsi", "VARCHAR(100) DEFAULT '-'"),
-        ("level_posisi", "VARCHAR(50) DEFAULT '-'"),
-        ("level_training", "VARCHAR(50) DEFAULT '-'"),
-        ("competency", "VARCHAR(150) DEFAULT '-'"),
-        ("id_comp", "VARCHAR(50) DEFAULT '-'"),
-        ("rencana_mulai", "VARCHAR(50) DEFAULT '-'"),
-        ("rencana_selesai", "VARCHAR(50) DEFAULT '-'"),
-        ("realisasi_mulai", "VARCHAR(50) DEFAULT '-'"),
-        ("realisasi_selesai", "VARCHAR(50) DEFAULT '-'"),
-        ("partisipan", "INT DEFAULT 0"),
-        ("status_planning", "VARCHAR(100) DEFAULT 'Sesuai'"),
-        ("STATUS_COE", "VARCHAR(50) DEFAULT 'Pending'"),
-        ("PIC", "VARCHAR(100) DEFAULT '-'"),
-        ("BATCH", "VARCHAR(50) DEFAULT '-'")
-    ]
-    for col_name, col_type in columns:
-        try:
-            cursor.execute(f"ALTER TABLE list_training ADD COLUMN {col_name} {col_type};")
-            conn.commit()
-        except Exception:
-            pass
-    cursor.close()
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -86,7 +56,6 @@ def dashboard():
     trainings = []
     conn = get_db_connection()
     if conn:
-        ensure_columns_exist(conn)
         cursor = conn.cursor(dictionary=True)
         try:
             cursor.execute("SELECT * FROM list_training ORDER BY id DESC")
@@ -114,68 +83,49 @@ def add_training():
     
     rencana_mulai = request.form.get('rencana_mulai', '-').strip() or '-'
     rencana_selesai = request.form.get('rencana_selesai', '-').strip() or '-'
-    partisipan_str = request.form.get('partisipan', '0').strip()
-    partisipan = int(partisipan_str) if partisipan_str.isdigit() else 0
+    partisipan = request.form.get('partisipan', '0').strip()
     pic = request.form.get('pic', '-').strip() or '-'
     
     conn = get_db_connection()
     if conn:
-        ensure_columns_exist(conn)
         cursor = conn.cursor(dictionary=True)
         try:
-            # Jika disubmit dari Tab 1 (pilih dari dropdown master repository)
-            if kode and not nama:
-                try:
-                    cursor.execute("SELECT * FROM list_training WHERE kode_training = %s OR KODE = %s LIMIT 1", (kode, kode))
-                    existing = cursor.fetchone()
-                    if existing:
-                        nama = existing.get('nama_training') or existing.get('nama') or existing.get('NAMA_TRAINING') or '-'
-                        fungsi = existing.get('fungsi') or existing.get('FUNGSI') or '-'
-                        level_posisi = existing.get('level_posisi') or existing.get('LEVEL_POSISI') or '-'
-                        level_training = existing.get('level_training') or existing.get('LEVEL_TRAINING') or '-'
-                        competency = existing.get('competency') or existing.get('COMPETENCY') or '-'
-                        id_comp = existing.get('id_comp') or existing.get('ID_COMP') or '-'
-                except Exception as ex_search:
-                    print(f"Search master warning: {ex_search}")
-
-            # Hitung nomor batch otomatis (B001, B002, dst)
-            batch_code = "B001"
-            try:
-                cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE kode_training = %s OR KODE = %s", (kode, kode))
-                count_res = cursor.fetchone()
-                if count_res and count_res.get('total'):
-                    batch_code = f"B{count_res['total'] + 1:03d}"
-            except Exception:
-                pass
-
-            # Insert Data (Gunakan query aman 100%)
-            insert_query = """
-                INSERT INTO list_training 
-                (kode_training, nama_training, nama, fungsi, level_posisi, level_training, competency, id_comp, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'Pending', %s, %s, %s, %s, 'Sesuai')
-            """
-            cursor.execute(insert_query, (
-                kode, 
-                nama or '-', 
-                nama or '-', 
-                fungsi, 
-                level_posisi, 
-                level_training, 
-                competency, 
-                id_comp, 
-                batch_code, 
-                rencana_mulai, 
-                rencana_selesai, 
-                partisipan, 
-                pic
-            ))
+            # Ambil data dari kolom yang ada di database
+            cursor.execute("SELECT * FROM list_training LIMIT 1")
+            sample = cursor.fetchone() or {}
             
+            # Cek penamaan kolom asli di database (apakah 'kode_training' atau 'KODE', 'nama' atau 'NAMA_TRAINING')
+            col_kode = 'kode_training' if 'kode_training' in sample else 'KODE'
+            col_nama = 'nama_training' if 'nama_training' in sample else ('nama' if 'nama' in sample else 'NAMA_TRAINING')
+            col_fungsi = 'fungsi' if 'fungsi' in sample else 'FUNGSI'
+            col_posisi = 'level_posisi' if 'level_posisi' in sample else 'LEVEL_POSISI'
+            col_lvl_tr = 'level_training' if 'level_training' in sample else 'LEVEL_TRAINING'
+            col_comp = 'competency' if 'competency' in sample else 'COMPETENCY'
+            col_id_comp = 'id_comp' if 'id_comp' in sample else ('id_competency_level' if 'id_competency_level' in sample else 'ID_COMP')
+
+            if kode and not nama:
+                cursor.execute(f"SELECT * FROM list_training WHERE {col_kode} = %s LIMIT 1", (kode,))
+                existing = cursor.fetchone()
+                if existing:
+                    nama = existing.get(col_nama) or '-'
+                    fungsi = existing.get(col_fungsi) or '-'
+                    level_posisi = existing.get(col_posisi) or '-'
+                    level_training = existing.get(col_lvl_tr) or '-'
+                    competency = existing.get(col_comp) or '-'
+                    id_comp = existing.get(col_id_comp) or '-'
+
+            # Simpan secara dinamis mengikuti kolom asli
+            sql = f"""
+                INSERT INTO list_training ({col_kode}, {col_nama}, {col_fungsi}, {col_posisi}, {col_lvl_tr}, {col_comp}, {col_id_comp})
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(sql, (kode, nama or '-', fungsi, level_posisi, level_training, competency, id_comp))
             conn.commit()
-            flash('Data Penjadwalan Batch COE / Training Baru berhasil disimpan!', 'success')
+            flash('Berhasil menyimpan data training baru!', 'success')
         except Exception as e:
             conn.rollback()
-            print(f"Error inserting training: {e}")
-            flash(f'Gagal menyimpan data training: {str(e)}', 'danger')
+            # TAMPILKAN PESAN ERROR ASLI MYSQL KE BANNER MERAH
+            flash(f'ERROR DATABASE: {str(e)}', 'danger')
         finally:
             cursor.close()
             conn.close()
@@ -190,22 +140,16 @@ def edit_training(id):
     nama_training = request.form.get('nama_training')
     fungsi = request.form.get('fungsi')
     pic = request.form.get('pic')
-    status_coe = request.form.get('status_coe')
-    status_planning = request.form.get('status_planning')
     
     conn = get_db_connection()
     if conn:
         cursor = conn.cursor()
         try:
-            cursor.execute("""
-                UPDATE list_training 
-                SET nama_training=%s, nama=%s, fungsi=%s, PIC=%s, STATUS_COE=%s, status_planning=%s 
-                WHERE id=%s
-            """, (nama_training, nama_training, fungsi, pic, status_coe, status_planning, id))
+            cursor.execute("UPDATE list_training SET nama_training=%s, fungsi=%s, PIC=%s WHERE id=%s", (nama_training, fungsi, pic, id))
             conn.commit()
             flash('Data training berhasil diperbarui!', 'success')
         except Exception as e:
-            flash(f'Gagal memperbarui data: {str(e)}', 'danger')
+            flash(f'Error Update: {str(e)}', 'danger')
         finally:
             cursor.close()
             conn.close()
@@ -224,7 +168,7 @@ def delete_training(id):
             conn.commit()
             flash('Data training berhasil dihapus!', 'danger')
         except Exception as e:
-            flash(f'Gagal menghapus data: {str(e)}', 'danger')
+            flash(f'Error Delete: {str(e)}', 'danger')
         finally:
             cursor.close()
             conn.close()
