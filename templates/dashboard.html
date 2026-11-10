@@ -104,7 +104,7 @@
                     </tr>
                     <tr class="bg-light text-center" style="font-size: 9px;">
                         <th>KODE <i class="bi bi-arrow-down-up"></i></th>
-                        <th>FUNGSI <br><select class="form-select form-select-sm p-0 fs-8" style="font-size: 9px;"><option>- Semu -</option></select></th>
+                        <th>FUNGSI <br><select class="form-select form-select-sm p-0 fs-8" style="font-size: 9px;"><option>- Semua -</option></select></th>
                         <th>LEVEL POSISI</th>
                         <th>LEVEL TRAINING</th>
                         <th>NAMA TRAINING</th>
@@ -268,7 +268,9 @@
                                     <select class="form-select form-select-sm" name="kode_training" required>
                                         <option value="">-- Pilih Training --</option>
                                         {% for item in trainings %}
-                                        <option value="{{ item.KODE }}">{{ item.KODE }} - {{ item.NAMA_TRAINING }}</option>
+                                        <option value="{{ item.KODE or item.kode_training }}">
+                                            {{ item.KODE or item.kode_training }} - {{ item.NAMA_TRAINING or item.nama_training }}
+                                        </option>
                                         {% endfor %}
                                     </select>
                                 </div>
