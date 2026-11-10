@@ -11,7 +11,7 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; font-size: 11px; }
         
-        /* Sidebar Lebar Semula */
+        /* Sidebar Styling Presisi Desain Awal */
         .sidebar { width: 220px; position: fixed; top: 0; bottom: 0; left: 0; background-color: #ffffff; border-right: 1px solid #e5e9f0; z-index: 100; padding: 15px 10px; display: flex; flex-direction: column; justify-content: space-between; }
         .sidebar-brand { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 20px; }
         .sidebar-brand .text-i { color: #0d6efd; }
@@ -36,7 +36,7 @@
         
         .simulation-banner { background-color: #fff3cd; color: #856404; padding: 6px 12px; font-size: 10px; border-radius: 4px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Table Styling */
+        /* Table Styling Exact Matching Screenshots */
         .table-custom { font-size: 10px; border-collapse: collapse; background: white; }
         .table-custom th, .table-custom td { padding: 6px 8px; vertical-align: middle; border: 1px solid #dee2e6; }
         
@@ -107,6 +107,18 @@
             <div><i class="bi bi-info-circle-fill me-1"></i> <b>MODE SIMULASI:</b> Data yang ditampilkan adalah dummy data terenkripsi untuk pengujian prototipe IPD System (Tahun Operasional: 2026).</div>
             <span class="badge bg-warning text-dark" style="font-size: 9px;">Data Simulasi</span>
         </div>
+
+        <!-- Alert Notification -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show py-2 mb-2" role="alert" style="font-size: 10px;">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
 
         <!-- Top Table Controls -->
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -290,6 +302,7 @@
                     </ul>
 
                     <div class="tab-content" id="addTrainingTabContent">
+                        <!-- TAB 1: PENJADWALAN BATCH COE BARU (DENGAN FORM TANGGAL & PIC) -->
                         <div class="tab-pane fade show active" id="batch-tab-pane" role="tabpanel">
                             <form action="{{ url_for('add_training') }}" method="POST">
                                 <div class="mb-3">
@@ -303,6 +316,26 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Rencana Tanggal Mulai:</label>
+                                        <input type="date" name="rencana_mulai" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Rencana Tanggal Selesai:</label>
+                                        <input type="date" name="rencana_selesai" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Jumlah Partisipan:</label>
+                                        <input type="number" name="partisipan" class="form-control form-control-sm" placeholder="20" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">PIC Training:</label>
+                                        <input type="text" name="pic" class="form-control form-control-sm" placeholder="Nama PIC" required>
+                                    </div>
+                                </div>
+
                                 <div class="text-end mt-4">
                                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
                                     <button type="submit" class="btn btn-success btn-sm">Simpan Batch COE</button>
@@ -310,6 +343,7 @@
                             </form>
                         </div>
 
+                        <!-- TAB 2: MASTER TRAINING BARU (REPOSITORY) -->
                         <div class="tab-pane fade" id="repository-tab-pane" role="tabpanel">
                             <form action="{{ url_for('add_training') }}" method="POST">
                                 <div class="row g-2">
