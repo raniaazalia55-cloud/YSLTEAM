@@ -22,9 +22,17 @@ def get_db_connection():
         return None
 
 def ensure_columns_exist(conn):
-    """Memastikan kolom tambahan COE & Planning ada di tabel list_training"""
+    """Memastikan seluruh kolom tambahan yang dibutuhkan sudah tersedia di tabel list_training"""
     cursor = conn.cursor()
     columns = [
+        ("kode_training", "VARCHAR(50) DEFAULT '-'"),
+        ("nama_training", "VARCHAR(255) DEFAULT '-'"),
+        ("nama", "VARCHAR(255) DEFAULT '-'"),
+        ("fungsi", "VARCHAR(100) DEFAULT '-'"),
+        ("level_posisi", "VARCHAR(50) DEFAULT '-'"),
+        ("level_training", "VARCHAR(50) DEFAULT '-'"),
+        ("competency", "VARCHAR(150) DEFAULT '-'"),
+        ("id_comp", "VARCHAR(50) DEFAULT '-'"),
         ("rencana_mulai", "VARCHAR(50) DEFAULT '-'"),
         ("rencana_selesai", "VARCHAR(50) DEFAULT '-'"),
         ("realisasi_mulai", "VARCHAR(50) DEFAULT '-'"),
@@ -114,32 +122,37 @@ def add_training():
         ensure_columns_exist(conn)
         cursor = conn.cursor(dictionary=True)
         try:
-            # Cari data master jika disubmit dari Tab 1 (pilihan dropdown)
+            # Jika disubmit dari Tab 1 (hanya milih kode_training via dropdown)
             if kode and not nama:
                 cursor.execute("SELECT * FROM list_training WHERE kode_training = %s LIMIT 1", (kode,))
                 existing = cursor.fetchone()
+                if not existing:
+                    cursor.execute("SELECT * FROM list_training WHERE KODE = %s LIMIT 1", (kode,))
+                    existing = cursor.fetchone()
+                
                 if existing:
-                    nama = existing.get('nama_training') or '-'
-                    fungsi = existing.get('fungsi') or '-'
-                    level_posisi = existing.get('level_posisi') or '-'
-                    level_training = existing.get('level_training') or '-'
-                    competency = existing.get('competency') or '-'
-                    id_comp = existing.get('id_comp') or '-'
+                    nama = existing.get('nama') or existing.get('nama_training') or existing.get('NAMA_TRAINING') or '-'
+                    fungsi = existing.get('fungsi') or existing.get('FUNGSI') or '-'
+                    level_posisi = existing.get('level_posisi') or existing.get('LEVEL_POSISI') or '-'
+                    level_training = existing.get('level_training') or existing.get('LEVEL_TRAINING') or '-'
+                    competency = existing.get('competency') or existing.get('COMPETENCY') or '-'
+                    id_comp = existing.get('id_comp') or existing.get('id_competency_level') or existing.get('ID_COMP') or '-'
 
             # Hitung nomor batch (B001, B002, dst)
-            cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE kode_training = %s", (kode,))
+            cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE kode_training = %s OR KODE = %s", (kode, kode))
             count_res = cursor.fetchone()
             batch_num = (count_res['total'] + 1) if count_res else 1
             batch_code = f"B{batch_num:03d}"
 
+            # Simpan data dengan menyelaraskan kolom utama
             cursor.execute("""
                 INSERT INTO list_training 
-                (kode_training, nama_training, fungsi, level_posisi, level_training, competency, id_comp, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'Pending', %s, %s, %s, %s, 'Sesuai')
-            """, (kode, nama or '-', fungsi, level_posisi, level_training, competency, id_comp, batch_code, rencana_mulai, rencana_selesai, partisipan, pic))
+                (kode_training, nama_training, nama, fungsi, level_posisi, level_training, competency, id_comp, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'Pending', %s, %s, %s, %s, 'Sesuai')
+            """, (kode, nama or '-', nama or '-', fungsi, level_posisi, level_training, competency, id_comp, batch_code, rencana_mulai, rencana_selesai, partisipan, pic))
             
             conn.commit()
-            flash('Penjadwalan Batch COE Baru berhasil disimpan!', 'success')
+            flash('Data Penjadwalan Batch COE / Training Baru berhasil disimpan!', 'success')
         except Exception as e:
             print(f"Error inserting training: {e}")
             flash(f'Gagal menyimpan data training: {str(e)}', 'danger')
@@ -163,15 +176,19 @@ def edit_training(id):
     conn = get_db_connection()
     if conn:
         cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE list_training 
-            SET nama_training=%s, fungsi=%s, PIC=%s, STATUS_COE=%s, status_planning=%s 
-            WHERE id=%s
-        """, (nama_training, fungsi, pic, status_coe, status_planning, id))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash('Data training berhasil diperbarui!', 'success')
+        try:
+            cursor.execute("""
+                UPDATE list_training 
+                SET nama_training=%s, nama=%s, fungsi=%s, PIC=%s, STATUS_COE=%s, status_planning=%s 
+                WHERE id=%s
+            """, (nama_training, nama_training, fungsi, pic, status_coe, status_planning, id))
+            conn.commit()
+            flash('Data training berhasil diperbarui!', 'success')
+        except Exception as e:
+            flash(f'Gagal memperbarui data: {str(e)}', 'danger')
+        finally:
+            cursor.close()
+            conn.close()
     return redirect(url_for('dashboard'))
 
 @app.route('/delete_training/<int:id>', methods=['POST'])
@@ -182,11 +199,15 @@ def delete_training(id):
     conn = get_db_connection()
     if conn:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM list_training WHERE id=%s", (id,))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash('Data training berhasil dihapus!', 'danger')
+        try:
+            cursor.execute("DELETE FROM list_training WHERE id=%s", (id,))
+            conn.commit()
+            flash('Data training berhasil dihapus!', 'danger')
+        except Exception as e:
+            flash(f'Gagal menghapus data: {str(e)}', 'danger')
+        finally:
+            cursor.close()
+            conn.close()
     return redirect(url_for('dashboard'))
 
 @app.route('/logout')
