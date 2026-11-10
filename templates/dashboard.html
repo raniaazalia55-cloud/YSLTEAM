@@ -4,67 +4,262 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Integrated Database Training - IPD System</title>
-    <!-- Bootstrap 5 CSS & Icons -->
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f9;
-        }
-        .sidebar {
-            min-height: 100vh;
-            background-color: #ffffff;
-            border-right: 1px solid #dee2e6;
-        }
-        .sidebar .nav-link {
-            color: #495057;
-            font-weight: 500;
-            padding: 10px 15px;
-            font-size: 0.85rem;
-        }
-        .sidebar .nav-link.active {
-            color: #0d6efd;
-            background-color: #e7f1ff;
-            border-radius: 6px;
-            font-weight: 600;
-        }
-        .table-custom th {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            vertical-align: middle;
-        }
-        .table-custom td {
-            font-size: 0.85rem;
-            vertical-align: middle;
-        }
-        .badge-pending { background-color: #6c757d; }
-        .badge-approved { background-color: #0d6efd; }
-        .badge-completed { background-color: #198754; }
-        .header-repo { background-color: #e3f2fd; color: #0d47a1; }
-        .header-coe { background-color: #fff8e1; color: #f57f17; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; }
+        .sidebar { min-height: 100vh; background-color: #ffffff; border-right: 1px solid #e9ecef; width: 250px; position: fixed; }
+        .sidebar .brand { padding: 20px; font-weight: bold; font-size: 20px; color: #0d6efd; display: flex; align-items: center; gap: 8px; }
+        .sidebar .nav-link { color: #495057; font-weight: 500; padding: 12px 20px; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #e7f1ff; color: #0d6efd; border-radius: 0 25px 25px 0; }
+        .main-content { margin-left: 250px; padding: 25px; }
+        .card-custom { border: none; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); background-color: #ffffff; margin-bottom: 20px; }
+        .table-responsive { font-size: 12px; }
+        th { background-color: #f8f9fa !important; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-pending { background-color: #6c757d; color: white; }
+        .badge-approved { background-color: #198754; color: white; }
     </style>
 </head>
 <body>
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar Navigation -->
-        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
-            <div class="d-flex align-items-center mb-4 px-2">
-                <h4 class="fw-bold text-danger m-0 me-2">IPD</h4>
-                <span class="badge bg-primary">SYSTEM</span>
+<div class="d-flex">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <span class="fs-4 text-danger fw-bold">IPD</span>
+            <span class="badge bg-primary">SYSTEM</span>
+        </div>
+        <div class="nav flex-column">
+            <a href="#" class="nav-link"><i class="bi bi-house"></i> HOME</a>
+            <a href="#" class="nav-link"><i class="bi bi-mortarboard"></i> EKI</a>
+            <a href="#" class="nav-link"><i class="bi bi-file-earmark-text"></i> ONE SHEET PROFILE</a>
+            <a href="#" class="nav-link"><i class="bi bi-person-badge"></i> IDP</a>
+            <a href="#" class="nav-link active"><i class="bi bi-hdd-network"></i> INTEGRATED DATABASE TRAINING</a>
+            <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> HISTORY</a>
+            <a href="#" class="nav-link"><i class="bi bi-plus-circle"></i> MASTER & SET UP</a>
+            <a href="#" class="nav-link"><i class="bi bi-folder2"></i> REPOSITORY (MASTER)</a>
+            <a href="#" class="nav-link"><i class="bi bi-calendar-event"></i> COE</a>
+            <a href="#" class="nav-link"><i class="bi bi-journal-bookmark"></i> COMPETENCY DIRECTORY</a>
+            <a href="#" class="nav-link"><i class="bi bi-grid-3x3-gap"></i> COMPETENCY MATRIX</a>
+            <a href="#" class="nav-link"><i class="bi bi-file-earmark-spreadsheet"></i> RESUME COE</a>
+            <a href="{{ url_for('logout') }}" class="nav-link text-danger mt-4"><i class="bi bi-box-arrow-right"></i> LOGOUT</a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content flex-grow-1">
+        <!-- Top Bar -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="fw-bold mb-0">Integrated Database Training</h4>
+                <small class="text-muted">Integrasi Repository Training, COE Schedule, & Evaluasi Planning</small>
             </div>
-            <ul class="nav flex-column gap-1">
-                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-house-door me-2"></i> HOME</a></li>
-                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-mortarboard me-2"></i> EKI</a></li>
-                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-file-earmark-text me-2"></i> ONE SHEET PROFILE</a></li>
-                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-person-badge me-2"></i> IDP</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/dashboard"><i class="bi bi-hdd-stack me-2"></i> INTEGRATED DATABASE TRAINING</a></li>
-                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-clock-history me-2"></i> HISTORY</a></li>
-                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-plus-circle me-2"></i> MASTER & SET UP</a></li>
-                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-folder2-open me-2"></i> REPOSITORY (MASTER)</a></li>
-                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-calendar-event me-2"></i> COE</a></li>
-                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-journal-bookmark me-2"></i> COMPETENCY DIRECTORY</a></li>
-                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-grid-3x3-gap me-2"></i> COMPETENCY MATRIX</a></li>
+            <div>
+                <span class="badge bg-primary px-3 py-2"><i class="bi bi-person-fill"></i> (ADMIN) {{ username or 'User' }}</span>
+            </div>
+        </div>
+
+        <!-- Alert Notification -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-Jangan panik, Rania! Itu kosong karena file `dashboard.html` terhapus atau kosong saat di-push ke GitHub tadi.
+
+Tenang, struktur utama tampilan IPD System kamu (sidebar, header, tabel, dan tombol Edit/Hapus) aman.
+
+---
+
+### Solusi Pengembalian (Restore Code Utuh)
+
+Buka file **`templates/dashboard.html`** di VS Code, hapus seluruh succeeds/isi di dalamnya jika ada, lalu **paste kode utuh** ini:
+
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Database Training - IPD System</title>
+    <link href="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css](https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css)" rel="stylesheet">
+    <link href="[https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css](https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css)" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; }
+        .sidebar { width: 250px; position: fixed; top: 0; bottom: 0; left: 0; background-color: #ffffff; border-right: 1px solid #deae0; z-index: 100; padding-top: 15px; }
+        .sidebar-brand { padding: 10px 20px; font-weight: bold; font-size: 20px; color: #0d6efd; }
+        .sidebar-menu { list-style: none; padding: 0; margin-top: 20px; }
+        .sidebar-menu li a { display: flex; align-items: center; padding: 12px 20px; color: #495057; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active { background-color: #e7f1ff; color: #0d6efd; border-radius: 0 25px 25px 0; }
+        .sidebar-menu li a i { margin-right: 12px; font-size: 18px; }
+        .main-content { margin-left: 250px; padding: 25px; }
+        .table-responsive { background: #ffffff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .bg-section-header { background-color: #e3f2fd; font-weight: bold; }
+        .bg-coe-header { background-color: #fff3cd; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <span class="text-danger">IPD</span> <span class="badge bg-primary">SYSTEM</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#"><i class="bi bi-house-door"></i> HOME</a></li>
+            <li><a href="#"><i class="bi bi-mortarboard"></i> EKI</a></li>
+            <li><a href="#"><i class="bi bi-file-earmark-text"></i> ONE SHEET PROFILE</a></li>
+            <li><a href="#"><i class="bi bi-person-badge"></i> IDP</a></li>
+            <li><a href="#" class="active"><i class="bi bi-segmented-nav"></i> INTEGRATED DATABASE TRAINING</a></li>
+            <li><a href="#"><i class="bi bi-clock-history"></i> HISTORY</a></li>
+            <li><a href="#"><i class="bi bi-plus-circle"></i> MASTER & SET UP</a></li>
+            <li><a href="#"><i class="bi bi-folder"></i> REPOSITORY (MASTER)</a></li>
+            <li><a href="#"><i class="bi bi-calendar-event"></i> COE</a></li>
+            <li><a href="#"><i class="bi bi-journal-bookmark"></i> COMPETENCY DIRECTORY</a></li>
+            <li><a href="#"><i class="bi bi-grid-3x3"></i> COMPETENCY MATRIX</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3 class="fw-bold mb-0">Integrated Database Training</h3>
+                <small class="text-muted">Integrasi Repository Training, COE Schedule, & Evaluasi Planning</small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary p-2"><i class="bi bi-person-fill"></i> (ADMIN)</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+            </div>
+        </div>
+
+        <div class="alert alert-warning py-2 mb-4 d-flex justify-content-between align-items-center" role="alert">
+            <small><i class="bi bi-info-circle-fill me-1"></i> MODE SIMULASI: Data dummy terenkripsi untuk pengujian prototipe IPD System (Tahun Operasional: 2026).</small>
+            <span class="badge bg-warning text-dark">Data Simulasi</span>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show py-2" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle fs-7">
+                <thead>
+                    <tr>
+                        <th colspan="9" class="bg-section-header">MASTER REPOSITORY TRAINING</th>
+                        <th colspan="6" class="bg-coe-header">COE SCHEDULE & REALISASI (2026)</th>
+                        <th rowspan="2" class="text-center align-middle bg-light">AKSI</th>
+                    </tr>
+                    <tr class="table-light">
+                        <th>KODE</th>
+                        <th>FUNGSI</th>
+                        <th>LEVEL POSISI</th>
+                        <th>LEVEL TRAINING</th>
+                        <th>NAMA TRAINING</th>
+                        <th>COMPETENCY</th>
+                        <th>ID COMP</th>
+                        <th>BATCH</th>
+                        <th>STATUS COE</th>
+                        <th>RENCANA MULAI</th>
+                        <th>RENCANA SELESAI</th>
+                        <th>REALISASI MULAI</th>
+                        <th>REALISASI SELESAI</th>
+                        <th>PARTISIPAN</th>
+                        <th>PIC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in trainings %}
+                    <tr>
+                        <td class="fw-bold text-primary">{{ item.KODE or item.kode_training or '-' }}</td>
+                        <td>{{ item.FUNGSI or item.fungsi or '-' }}</td>
+                        <td>{{ item.LEVEL_POSISI or item.level_posisi or '-' }}</td>
+                        <td>{{ item.LEVEL_TRAINING or item.level_training or '-' }}</td>
+                        <td>{{ item.NAMA_TRAINING or item.nama_training or '-' }}</td>
+                        <td>{{ item.COMPETENCY or item.competency or '-' }}</td>
+                        <td>{{ item.ID_COMP or item.id_comp or '-' }}</td>
+                        <td>{{ item.BATCH or item.batch or '-' }}</td>
+                        <td>
+                            <span class="badge {% if item.STATUS_COE == 'Approved' %}bg-success{% elif item.STATUS_COE == 'Completed' %}bg-info{% else %}bg-secondary{% endif %}">
+                                {{ item.STATUS_COE or item.status_coe or 'Pending' }}
+                            </span>
+                        </td>
+                        <td>{{ item.rencana_mulai or '-' }}</td>
+                        <td>{{ item.rencana_selesai or '-' }}</td>
+                        <td>{{ item.realisasi_mulai or '-' }}</td>
+                        <td>{{ item.realisasi_selesai or '-' }}</td>
+                        <td>{{ item.partisipan or 0 }}</td>
+                        <td>{{ item.PIC or item.pic or '-' }}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#editModal{{ item.id }}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <form action="{{ url_for('delete_training', id=item.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin menghapus data ini?');">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+
+                            <!-- Modal Edit -->
+                            <div class="modal fade text-start" id="editModal{{ item.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form action="{{ url_for('edit_training', id=item.id) }}" method="POST">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Training - {{ item.KODE or item.kode_training }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nama Training</label>
+                                                    <input type="text" name="nama_training" class="form-control" value="{{ item.NAMA_TRAINING or item.nama_training }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Fungsi</label>
+                                                    <input type="text" name="fungsi" class="form-control" value="{{ item.FUNGSI or item.fungsi }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">PIC</label>
+                                                    <input type="text" name="pic" class="form-control" value="{{ item.PIC or item.pic }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Status COE</label>
+                                                    <select name="status_coe" class="form-select">
+                                                        <option value="Pending" {% if (item.STATUS_COE or item.status_coe) == 'Pending' %}selected{% endif %}>Pending</option>
+                                                        <option value="Approved" {% if (item.STATUS_COE or item.status_coe) == 'Approved' %}selected{% endif %}>Approved</option>
+                                                        <option value="Completed" {% if (item.STATUS_COE or item.status_coe) == 'Completed' %}selected{% endif %}>Completed</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="16" class="text-center py-4">Belum ada data training yang tersedia.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js](https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js)"></script>
+</body>
+</html>
