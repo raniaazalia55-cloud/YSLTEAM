@@ -21,33 +21,6 @@ def get_db_connection():
         print(f"Database error: {e}")
         return None
 
-# ROUTE OTOMATIS IMPORT DATABASE
-@app.route('/seed-database-now')
-def seed_database():
-    try:
-        conn = get_db_connection()
-        if not conn:
-            return "❌ Koneksi Database Gagal!"
-            
-        cursor = conn.cursor()
-        sql_file_path = os.path.join(app.root_path, 'yslteam.sql')
-        
-        with open(sql_file_path, 'r', encoding='utf-8') as f:
-            sql_script = f.read()
-            
-        commands = sql_script.split(';')
-        for command in commands:
-            cmd = command.strip()
-            if cmd:
-                cursor.execute(cmd)
-                
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return "<h1>✅ DATABASE BERHASIL DI-IMPORT 100%!</h1><p><a href='/dashboard'>Klik di sini untuk ke Dashboard</a></p>"
-    except Exception as e:
-        return f"❌ Error saat import: {str(e)}"
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -94,6 +67,45 @@ def dashboard():
             conn.close()
 
     return render_template('dashboard.html', username=session.get('username'), trainings=trainings)
+
+@app.route('/edit_training/<int:id>', methods=['POST'])
+def edit_training(id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    nama_training = request.form.get('nama_training')
+    fungsi = request.form.get('fungsi')
+    pic = request.form.get('pic')
+    status_coe = request.form.get('status_coe')
+    
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE list_training 
+            SET NAMA_TRAINING=%s, FUNGSI=%s, PIC=%s, STATUS_COE=%s 
+            WHERE id=%s
+        """, (nama_training, fungsi, pic, status_coe, id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash('Data training berhasil diperbarui!', 'success')
+    return redirect(url_for('dashboard'))
+
+@app.route('/delete_training/<int:id>', methods=['POST'])
+def delete_training(id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM list_training WHERE id=%s", (id,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash('Data training berhasil dihapus!', 'danger')
+    return redirect(url_for('dashboard'))
 
 @app.route('/logout')
 def logout():
