@@ -75,23 +75,49 @@ def add_training():
     
     kode = request.form.get('kode_training')
     nama = request.form.get('nama_training')
-    fungsi = request.form.get('fungsi')
-    level_posisi = request.form.get('level_posisi')
-    level_training = request.form.get('level_training')
-    competency = request.form.get('competency')
-    id_comp = request.form.get('id_comp')
+    fungsi = request.form.get('fungsi', '-')
+    level_posisi = request.form.get('level_posisi', '-')
+    level_training = request.form.get('level_training', '-')
+    competency = request.form.get('competency', '-')
+    id_comp = request.form.get('id_comp', '-')
     
     conn = get_db_connection()
     if conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO list_training (KODE, NAMA_TRAINING, FUNGSI, LEVEL_POSISI, LEVEL_TRAINING, COMPETENCY, ID_COMP, STATUS_COE)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, 'Pending')
-        """, (kode, nama, fungsi, level_posisi, level_training, competency, id_comp))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash('Data Master Training Baru berhasil ditambahkan!', 'success')
+        cursor = conn.cursor(dictionary=True)
+        try:
+            # Jika disubmit dari Tab 1 (hanya milih kode_training), ambil detail master dari database
+            if kode and not nama:
+                cursor.execute("SELECT * FROM list_training WHERE KODE = %s OR kode_training = %s LIMIT 1", (kode, kode))
+                existing = cursor.fetchone()
+                if existing:
+                    nama = existing.get('NAMA_TRAINING') or existing.get('nama_training') or '-'
+                    fungsi = existing.get('FUNGSI') or existing.get('fungsi') or '-'
+                    level_posisi = existing.get('LEVEL_POSISI') or existing.get('level_posisi') or '-'
+                    level_training = existing.get('LEVEL_TRAINING') or existing.get('level_training') or '-'
+                    competency = existing.get('COMPETENCY') or existing.get('competency') or '-'
+                    id_comp = existing.get('ID_COMP') or existing.get('id_comp') or '-'
+
+            # Hitung jumlah batch otomatis
+            cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE KODE = %s OR kode_training = %s", (kode, kode))
+            count_res = cursor.fetchone()
+            batch_num = (count_res['total'] + 1) if count_res else 1
+            batch_code = f"B{batch_num:03d}"
+
+            cursor.execute("""
+                INSERT INTO list_training 
+                (KODE, NAMA_TRAINING, FUNGSI, LEVEL_POSISI, LEVEL_TRAINING, COMPETENCY, ID_COMP, BATCH, STATUS_COE, status_planning)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'Pending', 'Sesuai')
+            """, (kode, nama or '-', fungsi, level_posisi, level_training, competency, id_comp, batch_code))
+            
+            conn.commit()
+            flash('Data Batch COE / Training Baru berhasil disimpan!', 'success')
+        except Exception as e:
+            print(f"Error inserting training: {e}")
+            flash('Gagal menyimpan data training.', 'danger')
+        finally:
+            cursor.close()
+            conn.close()
+            
     return redirect(url_for('dashboard'))
 
 @app.route('/edit_training/<int:id>', methods=['POST'])
