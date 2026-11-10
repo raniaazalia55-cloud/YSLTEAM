@@ -21,6 +21,25 @@ def get_db_connection():
         print(f"Database error: {e}")
         return None
 
+def ensure_columns_exist(conn):
+    """Memastikan kolom tambahan COE & Planning ada di tabel list_training"""
+    cursor = conn.cursor()
+    columns = [
+        ("rencana_mulai", "VARCHAR(50) DEFAULT '-'"),
+        ("rencana_selesai", "VARCHAR(50) DEFAULT '-'"),
+        ("realisasi_mulai", "VARCHAR(50) DEFAULT '-'"),
+        ("realisasi_selesai", "VARCHAR(50) DEFAULT '-'"),
+        ("partisipan", "INT DEFAULT 0"),
+        ("status_planning", "VARCHAR(100) DEFAULT 'Sesuai'")
+    ]
+    for col_name, col_type in columns:
+        try:
+            cursor.execute(f"ALTER TABLE list_training ADD COLUMN {col_name} {col_type};")
+            conn.commit()
+        except Exception:
+            pass
+    cursor.close()
+
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -56,6 +75,7 @@ def dashboard():
     trainings = []
     conn = get_db_connection()
     if conn:
+        ensure_columns_exist(conn)
         cursor = conn.cursor(dictionary=True)
         try:
             cursor.execute("SELECT * FROM list_training")
@@ -81,11 +101,17 @@ def add_training():
     competency = request.form.get('competency', '-')
     id_comp = request.form.get('id_comp', '-')
     
+    rencana_mulai = request.form.get('rencana_mulai', '-')
+    rencana_selesai = request.form.get('rencana_selesai', '-')
+    partisipan = request.form.get('partisipan', 0)
+    pic = request.form.get('pic', '-')
+    
     conn = get_db_connection()
     if conn:
+        ensure_columns_exist(conn)
         cursor = conn.cursor(dictionary=True)
         try:
-            # Jika disubmit dari Tab 1 (hanya milih kode_training), ambil detail master dari database
+            # Jika disubmit dari Tab 1 (hanya milih kode_training)
             if kode and not nama:
                 cursor.execute("SELECT * FROM list_training WHERE KODE = %s OR kode_training = %s LIMIT 1", (kode, kode))
                 existing = cursor.fetchone()
@@ -97,7 +123,7 @@ def add_training():
                     competency = existing.get('COMPETENCY') or existing.get('competency') or '-'
                     id_comp = existing.get('ID_COMP') or existing.get('id_comp') or '-'
 
-            # Hitung jumlah batch otomatis
+            # Hitung nomor batch otomatis (B001, B002, dst)
             cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE KODE = %s OR kode_training = %s", (kode, kode))
             count_res = cursor.fetchone()
             batch_num = (count_res['total'] + 1) if count_res else 1
@@ -105,15 +131,15 @@ def add_training():
 
             cursor.execute("""
                 INSERT INTO list_training 
-                (KODE, NAMA_TRAINING, FUNGSI, LEVEL_POSISI, LEVEL_TRAINING, COMPETENCY, ID_COMP, BATCH, STATUS_COE, status_planning)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'Pending', 'Sesuai')
-            """, (kode, nama or '-', fungsi, level_posisi, level_training, competency, id_comp, batch_code))
+                (KODE, NAMA_TRAINING, FUNGSI, LEVEL_POSISI, LEVEL_TRAINING, COMPETENCY, ID_COMP, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'Pending', %s, %s, %s, %s, 'Sesuai')
+            """, (kode, nama or '-', fungsi, level_posisi, level_training, competency, id_comp, batch_code, rencana_mulai, rencana_selesai, partisipan, pic))
             
             conn.commit()
-            flash('Data Batch COE / Training Baru berhasil disimpan!', 'success')
+            flash('Data Penjadwalan Batch COE / Training Baru berhasil disimpan!', 'success')
         except Exception as e:
             print(f"Error inserting training: {e}")
-            flash('Gagal menyimpan data training.', 'danger')
+            flash(f'Gagal menyimpan data training: {str(e)}', 'danger')
         finally:
             cursor.close()
             conn.close()
