@@ -4,84 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Integrated Database Training - IPD System</title>
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; }
-        .sidebar { width: 250px; position: fixed; top: 0; bottom: 0; left: 0; background-color: #ffffff; border-right: 1px solid #deae0; z-index: 100; padding-top: 15px; }
-        .sidebar-brand { padding: 10px 20px; font-weight: bold; font-size: 20px; color: #0d6efd; }
-        .sidebar-menu { list-style: none; padding: 0; margin-top: 20px; }
-        .sidebar-menu li a { display: flex; align-items: center; padding: 12px 20px; color: #495057; text-decoration: none; font-size: 14px; font-weight: 500; }
-        .sidebar-menu li a:hover, .sidebar-menu li a.active { background-color: #e7f1ff; color: #0d6efd; border-radius: 0 25px 25px 0; }
-        .sidebar-menu li a i { margin-right: 12px; font-size: 18px; }
-        .main-content { margin-left: 250px; padding: 25px; }
-        .table-responsive { background: #ffffff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .bg-section-header { background-color: #e3f2fd; font-weight: bold; }
-        .bg-coe-header { background-color: #fff3cd; font-weight: bold; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; font-size: 11px; }
+        .sidebar { width: 45px; position: fixed; top: 0; bottom: 0; left: 0; background-color: #ffffff; border-right: 1px solid #e0e0e0; z-index: 100; text-align: center; padding-top: 10px; }
+        .sidebar i { font-size: 16px; color: #0d6efd; display: block; margin-bottom: 20px; }
+        .main-container { margin-left: 45px; padding: 15px; }
+        
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .title-text { font-size: 16px; font-weight: bold; color: #333; }
+        .sub-title { font-size: 10px; color: #666; }
+        
+        .simulation-banner { background-color: #fff3cd; color: #856404; padding: 6px 12px; font-size: 10px; border-radius: 4px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Table Styling Exact Matching Screenshots */
+        .table-custom { font-size: 10px; border-collapse: collapse; background: white; }
+        .table-custom th, .table-custom td { padding: 6px 8px; vertical-align: middle; border: 1px solid #dee2e6; }
+        
+        .header-repo { background-color: #e8f4f8 !important; color: #000; font-weight: bold; text-align: center; }
+        .header-coe { background-color: #fff8e7 !important; color: #000; font-weight: bold; text-align: center; }
+        .header-eval { background-color: #e8f8f0 !important; color: #000; font-weight: bold; text-align: center; }
+        .header-action { background-color: #212529 !important; color: #fff; font-weight: bold; text-align: center; }
+        
+        .badge-status-green { background-color: #198754; color: white; border-radius: 12px; padding: 3px 10px; font-size: 9px; font-weight: normal; }
+        .badge-status-blue { background-color: #0d6efd; color: white; border-radius: 12px; padding: 3px 10px; font-size: 9px; font-weight: normal; }
+        .badge-status-grey { background-color: #6c757d; color: white; border-radius: 12px; padding: 3px 10px; font-size: 9px; font-weight: normal; }
+        .badge-status-red { background-color: #dc3545; color: white; border-radius: 12px; padding: 3px 10px; font-size: 9px; font-weight: normal; }
+        .badge-status-orange { background-color: #ffc107; color: #000; border-radius: 12px; padding: 3px 10px; font-size: 9px; font-weight: normal; }
+
+        .btn-action-edit { background-color: #ffc107; border: none; color: #000; font-size: 9px; padding: 2px 6px; border-radius: 3px; display: block; width: 100%; margin-bottom: 3px; font-weight: 500; }
+        .btn-action-delete { background-color: #dc3545; border: none; color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 3px; display: block; width: 100%; }
+        
+        .modal-header-green { background-color: #198754; color: white; }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar Navigation -->
+    <!-- Minimalist Sidebar Icons -->
     <div class="sidebar">
-        <div class="sidebar-brand">
-            <span class="text-danger">IPD</span> <span class="badge bg-primary">SYSTEM</span>
-        </div>
-        <ul class="sidebar-menu">
-            <li><a href="#"><i class="bi bi-house-door"></i> HOME</a></li>
-            <li><a href="#"><i class="bi bi-mortarboard"></i> EKI</a></li>
-            <li><a href="#"><i class="bi bi-file-earmark-text"></i> ONE SHEET PROFILE</a></li>
-            <li><a href="#"><i class="bi bi-person-badge"></i> IDP</a></li>
-            <li><a href="#" class="active"><i class="bi bi-segmented-nav"></i> INTEGRATED DATABASE TRAINING</a></li>
-            <li><a href="#"><i class="bi bi-clock-history"></i> HISTORY</a></li>
-            <li><a href="#"><i class="bi bi-plus-circle"></i> MASTER & SET UP</a></li>
-            <li><a href="#"><i class="bi bi-folder"></i> REPOSITORY (MASTER)</a></li>
-            <li><a href="#"><i class="bi bi-calendar-event"></i> COE</a></li>
-            <li><a href="#"><i class="bi bi-journal-bookmark"></i> COMPETENCY DIRECTORY</a></li>
-            <li><a href="#"><i class="bi bi-grid-3x3"></i> COMPETENCY MATRIX</a></li>
-        </ul>
+        <span class="fw-bold text-primary" style="font-size: 10px;">IPD</span>
+        <hr class="my-2">
+        <a href="#"><i class="bi bi-house-door-fill"></i></a>
+        <a href="#"><i class="bi bi-file-earmark-text"></i></a>
+        <a href="#"><i class="bi bi-person-fill"></i></a>
+        <a href="#"><i class="bi bi-hdd-network-fill"></i></a>
+        <a href="#"><i class="bi bi-clock-history"></i></a>
     </div>
 
-    <!-- Main Content Area -->
-    <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Header Bar -->
+        <div class="header-section">
             <div>
-                <h3 class="fw-bold mb-0">Integrated Database Training</h3>
-                <small class="text-muted">Integrasi Repository Training, COE Schedule, & Evaluasi Planning</small>
+                <span class="title-text">Integrated Database Training</span>
+                <div class="sub-title">Integrasi Repository Training, COE Schedule, & Evaluasi Planning</div>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary p-2"><i class="bi bi-person-fill"></i> (ADMIN) {{ username or 'User' }}</span>
-                <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+                <button class="btn btn-sm btn-primary py-1 style-btn" data-bs-toggle="modal" data-bs-target="#addTrainingModal" style="font-size: 10px;">
+                    <i class="bi bi-plus-circle me-1"></i> Tambah Data Training Baru
+                </button>
+                <span class="badge bg-primary px-2 py-1" style="font-size: 10px;"><i class="bi bi-person-fill"></i> HCD SPECIALIST (HCD)</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-danger py-0 px-2" style="font-size: 10px;">Logout</a>
             </div>
         </div>
 
-        <div class="alert alert-warning py-2 mb-4 d-flex justify-content-between align-items-center" role="alert">
-            <small><i class="bi bi-info-circle-fill me-1"></i> MODE SIMULASI: Data dummy terenkripsi untuk pengujian prototipe IPD System (Tahun Operasional: 2026).</small>
-            <span class="badge bg-warning text-dark">Data Simulasi</span>
+        <!-- Simulation Banner -->
+        <div class="simulation-banner">
+            <div><i class="bi bi-info-circle-fill me-1"></i> <b>MODE SIMULASI:</b> Data yang ditampilkan adalah dummy data terenkripsi untuk pengujian prototipe IPD System (Tahun Operasional: 2026).</div>
+            <span class="badge bg-warning text-dark" style="font-size: 9px;">Data Simulasi</span>
         </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }} alert-dismissible fade show py-2" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
+        <!-- Top Table Controls -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                Tampilkan 
+                <select class="form-select form-select-sm d-inline-block w-auto py-0 fs-7" style="font-size: 10px;">
+                    <option>10</option>
+                    <option>25</option>
+                    <option>50</option>
+                </select> entri
+            </div>
+            <div>
+                Cari Global: <input type="text" class="form-control form-control-sm d-inline-block w-auto py-0 fs-7" style="font-size: 10px;">
+            </div>
+        </div>
 
+        <!-- Main Data Table -->
         <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle fs-7">
+            <table class="table table-custom table-bordered table-hover align-middle">
                 <thead>
                     <tr>
-                        <th colspan="9" class="bg-section-header">MASTER REPOSITORY TRAINING</th>
-                        <th colspan="6" class="bg-coe-header">COE SCHEDULE & REALISASI (2026)</th>
-                        <th rowspan="2" class="text-center align-middle bg-light">AKSI</th>
+                        <th colspan="8" class="header-repo">MASTER REPOSITORY TRAINING</th>
+                        <th colspan="7" class="header-coe">COE SCHEDULE & REALISASI (2026)</th>
+                        <th colspan="2" class="header-eval">EVALUASI PLANNING</th>
+                        <th rowspan="2" class="header-action" style="width: 80px;">ACTION</th>
                     </tr>
-                    <tr class="table-light">
-                        <th>KODE</th>
-                        <th>FUNGSI</th>
+                    <tr class="bg-light text-center" style="font-size: 9px;">
+                        <th>KODE <i class="bi bi-arrow-down-up"></i></th>
+                        <th>FUNGSI <br><select class="form-select form-select-sm p-0 fs-8" style="font-size: 9px;"><option>- Semu -</option></select></th>
                         <th>LEVEL POSISI</th>
                         <th>LEVEL TRAINING</th>
                         <th>NAMA TRAINING</th>
@@ -95,6 +118,8 @@
                         <th>REALISASI SELESAI</th>
                         <th>PARTISIPAN</th>
                         <th>PIC</th>
+                        <th>STATUS PLANNING <br><select class="form-select form-select-sm p-0 fs-8" style="font-size: 9px;"><option>- Semua -</option></select></th>
+                        <th>HASIL EVALUASI</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -108,24 +133,32 @@
                         <td>{{ item.COMPETENCY or item.competency or '-' }}</td>
                         <td>{{ item.ID_COMP or item.id_comp or '-' }}</td>
                         <td>{{ item.BATCH or item.batch or '-' }}</td>
-                        <td>
-                            <span class="badge {% if item.STATUS_COE == 'Approved' %}bg-success{% elif item.STATUS_COE == 'Completed' %}bg-info{% else %}bg-secondary{% endif %}">
-                                {{ item.STATUS_COE or item.status_coe or 'Pending' }}
+                        <td class="text-center">
+                            <span class="badge {% if item.STATUS_COE == 'Selesai' or item.STATUS_COE == 'Approved' %}badge-status-green{% elif item.STATUS_COE == 'Proses' %}badge-status-blue{% else %}badge-status-grey{% endif %}">
+                                {{ item.STATUS_COE or 'Pending' }}
                             </span>
                         </td>
                         <td>{{ item.rencana_mulai or '-' }}</td>
                         <td>{{ item.rencana_selesai or '-' }}</td>
                         <td>{{ item.realisasi_mulai or '-' }}</td>
                         <td>{{ item.realisasi_selesai or '-' }}</td>
-                        <td>{{ item.partisipan or 0 }}</td>
+                        <td class="text-center">{{ item.partisipan or 0 }}</td>
                         <td>{{ item.PIC or item.pic or '-' }}</td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#editModal{{ item.id }}">
-                                <i class="bi bi-pencil-square"></i>
+                            <small>{{ item.status_planning or 'Sesuai' }}</small>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge {% if item.status_planning == 'Tidak Sesuai (Rescheduled)' %}badge-status-red{% elif item.status_planning == 'Belum Realisasi' %}badge-status-orange{% else %}badge-status-green{% endif %}">
+                                {{ item.status_planning or 'Sesuai' }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn-action-edit" data-bs-toggle="modal" data-bs-target="#editModal{{ item.id }}">
+                                <i class="bi bi-pencil-square"></i> Edit / Reschedule
                             </button>
-                            <form action="{{ url_for('delete_training', id=item.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin menghapus data ini?');">
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    <i class="bi bi-trash"></i>
+                            <form action="{{ url_for('delete_training', id=item.id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?');">
+                                <button type="submit" class="btn-action-delete">
+                                    <i class="bi bi-trash"></i> Hapus
                                 </button>
                             </form>
 
@@ -134,35 +167,43 @@
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <form action="{{ url_for('edit_training', id=item.id) }}" method="POST">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Edit Training - {{ item.KODE or item.kode_training }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            <div class="modal-header modal-header-green">
+                                                <h6 class="modal-title fw-bold">Edit Training - {{ item.KODE or item.kode_training }}</h6>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Nama Training</label>
-                                                    <input type="text" name="nama_training" class="form-control" value="{{ item.NAMA_TRAINING or item.nama_training }}" required>
+                                            <div class="modal-body" style="font-size: 11px;">
+                                                <div class="mb-2">
+                                                    <label class="form-label mb-1">Nama Training</label>
+                                                    <input type="text" name="nama_training" class="form-control form-control-sm" value="{{ item.NAMA_TRAINING or item.nama_training }}" required>
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Fungsi</label>
-                                                    <input type="text" name="fungsi" class="form-control" value="{{ item.FUNGSI or item.fungsi }}">
+                                                <div class="mb-2">
+                                                    <label class="form-label mb-1">Fungsi</label>
+                                                    <input type="text" name="fungsi" class="form-control form-control-sm" value="{{ item.FUNGSI or item.fungsi }}">
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">PIC</label>
-                                                    <input type="text" name="pic" class="form-control" value="{{ item.PIC or item.pic }}">
+                                                <div class="mb-2">
+                                                    <label class="form-label mb-1">PIC</label>
+                                                    <input type="text" name="pic" class="form-control form-control-sm" value="{{ item.PIC or item.pic }}">
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Status COE</label>
-                                                    <select name="status_coe" class="form-select">
-                                                        <option value="Pending" {% if (item.STATUS_COE or item.status_coe) == 'Pending' %}selected{% endif %}>Pending</option>
-                                                        <option value="Approved" {% if (item.STATUS_COE or item.status_coe) == 'Approved' %}selected{% endif %}>Approved</option>
-                                                        <option value="Completed" {% if (item.STATUS_COE or item.status_coe) == 'Completed' %}selected{% endif %}>Completed</option>
+                                                <div class="mb-2">
+                                                    <label class="form-label mb-1">Status COE</label>
+                                                    <select name="status_coe" class="form-select form-select-sm">
+                                                        <option value="Pending" {% if item.STATUS_COE == 'Pending' %}selected{% endif %}>Pending</option>
+                                                        <option value="Proses" {% if item.STATUS_COE == 'Proses' %}selected{% endif %}>Proses</option>
+                                                        <option value="Selesai" {% if item.STATUS_COE == 'Selesai' %}selected{% endif %}>Selesai</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label mb-1">Status Planning</label>
+                                                    <select name="status_planning" class="form-select form-select-sm">
+                                                        <option value="Sesuai" {% if item.status_planning == 'Sesuai' %}selected{% endif %}>Sesuai</option>
+                                                        <option value="Tidak Sesuai (Rescheduled)" {% if item.status_planning == 'Tidak Sesuai (Rescheduled)' %}selected{% endif %}>Tidak Sesuai (Rescheduled)</option>
+                                                        <option value="Belum Realisasi" {% if item.status_planning == 'Belum Realisasi' %}selected{% endif %}>Belum Realisasi</option>
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                            <div class="modal-footer py-1">
+                                                <button type="button" class="btn btn-secondary btn-sm py-0" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-success btn-sm py-0">Simpan Perubahan</button>
                                             </div>
                                         </form>
                                     </div>
@@ -172,14 +213,133 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="16" class="text-center py-4">Belum ada data training yang tersedia.</td>
+                        <td colspan="18" class="text-center py-4">Belum ada data training yang tersedia.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        <!-- Footer Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-2">
+            <div style="font-size: 10px; color: #666;">
+                Showing 1 to {{ trainings|length }} of {{ trainings|length }} entries
+            </div>
+            <div>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#" style="font-size: 10px;">Sebelumnya</a></li>
+                    <li class="page-item active"><a class="page-link" href="#" style="font-size: 10px;">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#" style="font-size: 10px;">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#" style="font-size: 10px;">Selanjutnya</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
 
+    <!-- MODAL MULTI-TAB: TAMBAH DATA TRAINING BARU -->
+    <div class="modal fade" id="addTrainingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header modal-header-green py-2">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-plus-circle me-1"></i> Tambah Data Training Baru</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <!-- Nav Tabs (Tab 1 & Tab 2) -->
+                    <ul class="nav nav-pills nav-justified mb-3" id="addTrainingTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link border active" id="batch-tab" data-bs-toggle="tab" data-bs-target="#batch-tab-pane" type="button" role="tab">
+                                1. Penjadwalan Batch COE Baru
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link border" id="repository-tab" data-bs-toggle="tab" data-bs-target="#repository-tab-pane" type="button" role="tab">
+                                2. Master Training Baru (Repository)
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="addTrainingTabContent">
+                        <!-- TAB 1: PENJADWALAN BATCH COE BARU -->
+                        <div class="tab-pane fade show active" id="batch-tab-pane" role="tabpanel">
+                            <form action="{{ url_for('add_training') }}" method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Pilih Training (Repository):</label>
+                                    <select class="form-select form-select-sm" name="kode_training" required>
+                                        <option value="">-- Pilih Training --</option>
+                                        {% for item in trainings %}
+                                        <option value="{{ item.KODE }}">{{ item.KODE }} - {{ item.NAMA_TRAINING }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="text-end mt-4">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-success btn-sm">Simpan Batch COE</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- TAB 2: MASTER TRAINING BARU (REPOSITORY) -->
+                        <div class="tab-pane fade" id="repository-tab-pane" role="tabpanel">
+                            <form action="{{ url_for('add_training') }}" method="POST">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Kode Training:</label>
+                                        <input type="text" name="kode_training" class="form-control form-control-sm" placeholder="TR200" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama Training:</label>
+                                        <input type="text" name="nama_training" class="form-control form-control-sm" placeholder="PROSMAN" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fungsi:</label>
+                                        <input type="text" name="fungsi" class="form-control form-control-sm" placeholder="MANAJEMEN">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">ID Fungsi:</label>
+                                        <input type="text" class="form-control form-control-sm" placeholder="F200">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Level Posisi:</label>
+                                        <input type="text" name="level_posisi" class="form-control form-control-sm" placeholder="1">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">ID Level Posisi:</label>
+                                        <input type="text" class="form-control form-control-sm" placeholder="L200">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Level Training:</label>
+                                        <select name="level_training" class="form-select form-select-sm">
+                                            <option value="Teknis">Teknis</option>
+                                            <option value="Softskill">Softskill</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">ID Level Training:</label>
+                                        <input type="text" class="form-control form-control-sm" placeholder="T200">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Competency:</label>
+                                        <input type="text" name="competency" class="form-control form-control-sm" placeholder="BIAR JAGO">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">ID Competency Level:</label>
+                                        <input type="text" name="id_comp" class="form-control form-control-sm" placeholder="C200">
+                                    </div>
+                                </div>
+                                <div class="text-end mt-4">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-success btn-sm">Simpan Data Baru</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -68,6 +68,32 @@ def dashboard():
 
     return render_template('dashboard.html', username=session.get('username'), trainings=trainings)
 
+@app.route('/add_training', methods=['POST'])
+def add_training():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    kode = request.form.get('kode_training')
+    nama = request.form.get('nama_training')
+    fungsi = request.form.get('fungsi')
+    level_posisi = request.form.get('level_posisi')
+    level_training = request.form.get('level_training')
+    competency = request.form.get('competency')
+    id_comp = request.form.get('id_comp')
+    
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO list_training (KODE, NAMA_TRAINING, FUNGSI, LEVEL_POSISI, LEVEL_TRAINING, COMPETENCY, ID_COMP, STATUS_COE)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 'Pending')
+        """, (kode, nama, fungsi, level_posisi, level_training, competency, id_comp))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash('Data Master Training Baru berhasil ditambahkan!', 'success')
+    return redirect(url_for('dashboard'))
+
 @app.route('/edit_training/<int:id>', methods=['POST'])
 def edit_training(id):
     if 'username' not in session:
@@ -77,15 +103,16 @@ def edit_training(id):
     fungsi = request.form.get('fungsi')
     pic = request.form.get('pic')
     status_coe = request.form.get('status_coe')
+    status_planning = request.form.get('status_planning')
     
     conn = get_db_connection()
     if conn:
         cursor = conn.cursor()
         cursor.execute("""
             UPDATE list_training 
-            SET NAMA_TRAINING=%s, FUNGSI=%s, PIC=%s, STATUS_COE=%s 
+            SET NAMA_TRAINING=%s, FUNGSI=%s, PIC=%s, STATUS_COE=%s, status_planning=%s 
             WHERE id=%s
-        """, (nama_training, fungsi, pic, status_coe, id))
+        """, (nama_training, fungsi, pic, status_coe, status_planning, id))
         conn.commit()
         cursor.close()
         conn.close()
