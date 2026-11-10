@@ -30,7 +30,10 @@ def ensure_columns_exist(conn):
         ("realisasi_mulai", "VARCHAR(50) DEFAULT '-'"),
         ("realisasi_selesai", "VARCHAR(50) DEFAULT '-'"),
         ("partisipan", "INT DEFAULT 0"),
-        ("status_planning", "VARCHAR(100) DEFAULT 'Sesuai'")
+        ("status_planning", "VARCHAR(100) DEFAULT 'Sesuai'"),
+        ("STATUS_COE", "VARCHAR(50) DEFAULT 'Pending'"),
+        ("PIC", "VARCHAR(100) DEFAULT '-'"),
+        ("BATCH", "VARCHAR(50) DEFAULT '-'")
     ]
     for col_name, col_type in columns:
         try:
@@ -111,32 +114,32 @@ def add_training():
         ensure_columns_exist(conn)
         cursor = conn.cursor(dictionary=True)
         try:
-            # Jika disubmit dari Tab 1 (hanya milih kode_training)
+            # Cari data master jika disubmit dari Tab 1 (pilihan dropdown)
             if kode and not nama:
-                cursor.execute("SELECT * FROM list_training WHERE KODE = %s OR kode_training = %s LIMIT 1", (kode, kode))
+                cursor.execute("SELECT * FROM list_training WHERE kode_training = %s LIMIT 1", (kode,))
                 existing = cursor.fetchone()
                 if existing:
-                    nama = existing.get('NAMA_TRAINING') or existing.get('nama_training') or '-'
-                    fungsi = existing.get('FUNGSI') or existing.get('fungsi') or '-'
-                    level_posisi = existing.get('LEVEL_POSISI') or existing.get('level_posisi') or '-'
-                    level_training = existing.get('LEVEL_TRAINING') or existing.get('level_training') or '-'
-                    competency = existing.get('COMPETENCY') or existing.get('competency') or '-'
-                    id_comp = existing.get('ID_COMP') or existing.get('id_comp') or '-'
+                    nama = existing.get('nama_training') or '-'
+                    fungsi = existing.get('fungsi') or '-'
+                    level_posisi = existing.get('level_posisi') or '-'
+                    level_training = existing.get('level_training') or '-'
+                    competency = existing.get('competency') or '-'
+                    id_comp = existing.get('id_comp') or '-'
 
-            # Hitung nomor batch otomatis (B001, B002, dst)
-            cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE KODE = %s OR kode_training = %s", (kode, kode))
+            # Hitung nomor batch (B001, B002, dst)
+            cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE kode_training = %s", (kode,))
             count_res = cursor.fetchone()
             batch_num = (count_res['total'] + 1) if count_res else 1
             batch_code = f"B{batch_num:03d}"
 
             cursor.execute("""
                 INSERT INTO list_training 
-                (KODE, NAMA_TRAINING, FUNGSI, LEVEL_POSISI, LEVEL_TRAINING, COMPETENCY, ID_COMP, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
+                (kode_training, nama_training, fungsi, level_posisi, level_training, competency, id_comp, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'Pending', %s, %s, %s, %s, 'Sesuai')
             """, (kode, nama or '-', fungsi, level_posisi, level_training, competency, id_comp, batch_code, rencana_mulai, rencana_selesai, partisipan, pic))
             
             conn.commit()
-            flash('Data Penjadwalan Batch COE / Training Baru berhasil disimpan!', 'success')
+            flash('Penjadwalan Batch COE Baru berhasil disimpan!', 'success')
         except Exception as e:
             print(f"Error inserting training: {e}")
             flash(f'Gagal menyimpan data training: {str(e)}', 'danger')
@@ -162,7 +165,7 @@ def edit_training(id):
         cursor = conn.cursor()
         cursor.execute("""
             UPDATE list_training 
-            SET NAMA_TRAINING=%s, FUNGSI=%s, PIC=%s, STATUS_COE=%s, status_planning=%s 
+            SET nama_training=%s, fungsi=%s, PIC=%s, STATUS_COE=%s, status_planning=%s 
             WHERE id=%s
         """, (nama_training, fungsi, pic, status_coe, status_planning, id))
         conn.commit()
