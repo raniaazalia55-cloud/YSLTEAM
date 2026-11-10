@@ -5,7 +5,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'yslteam-secret-key-2026')
 
-    # Impor Blueprint tepat di dalam function agar bebas circular import
+    # Impor routes tepat di dalam create_app
     from yslteam.auth.routes import auth_bp
     from yslteam.dashboard.routes import dashboard_bp
 
