@@ -22,7 +22,7 @@ def get_db_connection():
         return None
 
 def ensure_columns_exist(conn):
-    """Memastikan seluruh kolom tambahan yang dibutuhkan sudah tersedia di tabel list_training"""
+    """Memastikan seluruh kolom tambahan tersedia di tabel list_training tanpa error"""
     cursor = conn.cursor()
     columns = [
         ("kode_training", "VARCHAR(50) DEFAULT '-'"),
@@ -89,7 +89,7 @@ def dashboard():
         ensure_columns_exist(conn)
         cursor = conn.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT * FROM list_training")
+            cursor.execute("SELECT * FROM list_training ORDER BY id DESC")
             trainings = cursor.fetchall()
         except Exception as e:
             print(f"Error fetching list_training: {e}")
@@ -104,56 +104,76 @@ def add_training():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    kode = request.form.get('kode_training')
-    nama = request.form.get('nama_training')
-    fungsi = request.form.get('fungsi', '-')
-    level_posisi = request.form.get('level_posisi', '-')
-    level_training = request.form.get('level_training', '-')
-    competency = request.form.get('competency', '-')
-    id_comp = request.form.get('id_comp', '-')
+    kode = request.form.get('kode_training', '').strip()
+    nama = request.form.get('nama_training', '').strip()
+    fungsi = request.form.get('fungsi', '-').strip() or '-'
+    level_posisi = request.form.get('level_posisi', '-').strip() or '-'
+    level_training = request.form.get('level_training', '-').strip() or '-'
+    competency = request.form.get('competency', '-').strip() or '-'
+    id_comp = request.form.get('id_comp', '-').strip() or '-'
     
-    rencana_mulai = request.form.get('rencana_mulai', '-')
-    rencana_selesai = request.form.get('rencana_selesai', '-')
-    partisipan = request.form.get('partisipan', 0)
-    pic = request.form.get('pic', '-')
+    rencana_mulai = request.form.get('rencana_mulai', '-').strip() or '-'
+    rencana_selesai = request.form.get('rencana_selesai', '-').strip() or '-'
+    partisipan_str = request.form.get('partisipan', '0').strip()
+    partisipan = int(partisipan_str) if partisipan_str.isdigit() else 0
+    pic = request.form.get('pic', '-').strip() or '-'
     
     conn = get_db_connection()
     if conn:
         ensure_columns_exist(conn)
         cursor = conn.cursor(dictionary=True)
         try:
-            # Jika disubmit dari Tab 1 (hanya milih kode_training via dropdown)
+            # Jika disubmit dari Tab 1 (pilih dari dropdown master repository)
             if kode and not nama:
-                cursor.execute("SELECT * FROM list_training WHERE kode_training = %s LIMIT 1", (kode,))
-                existing = cursor.fetchone()
-                if not existing:
-                    cursor.execute("SELECT * FROM list_training WHERE KODE = %s LIMIT 1", (kode,))
+                try:
+                    cursor.execute("SELECT * FROM list_training WHERE kode_training = %s OR KODE = %s LIMIT 1", (kode, kode))
                     existing = cursor.fetchone()
-                
-                if existing:
-                    nama = existing.get('nama') or existing.get('nama_training') or existing.get('NAMA_TRAINING') or '-'
-                    fungsi = existing.get('fungsi') or existing.get('FUNGSI') or '-'
-                    level_posisi = existing.get('level_posisi') or existing.get('LEVEL_POSISI') or '-'
-                    level_training = existing.get('level_training') or existing.get('LEVEL_TRAINING') or '-'
-                    competency = existing.get('competency') or existing.get('COMPETENCY') or '-'
-                    id_comp = existing.get('id_comp') or existing.get('id_competency_level') or existing.get('ID_COMP') or '-'
+                    if existing:
+                        nama = existing.get('nama_training') or existing.get('nama') or existing.get('NAMA_TRAINING') or '-'
+                        fungsi = existing.get('fungsi') or existing.get('FUNGSI') or '-'
+                        level_posisi = existing.get('level_posisi') or existing.get('LEVEL_POSISI') or '-'
+                        level_training = existing.get('level_training') or existing.get('LEVEL_TRAINING') or '-'
+                        competency = existing.get('competency') or existing.get('COMPETENCY') or '-'
+                        id_comp = existing.get('id_comp') or existing.get('ID_COMP') or '-'
+                except Exception as ex_search:
+                    print(f"Search master warning: {ex_search}")
 
-            # Hitung nomor batch (B001, B002, dst)
-            cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE kode_training = %s OR KODE = %s", (kode, kode))
-            count_res = cursor.fetchone()
-            batch_num = (count_res['total'] + 1) if count_res else 1
-            batch_code = f"B{batch_num:03d}"
+            # Hitung nomor batch otomatis (B001, B002, dst)
+            batch_code = "B001"
+            try:
+                cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE kode_training = %s OR KODE = %s", (kode, kode))
+                count_res = cursor.fetchone()
+                if count_res and count_res.get('total'):
+                    batch_code = f"B{count_res['total'] + 1:03d}"
+            except Exception:
+                pass
 
-            # Simpan data dengan menyelaraskan kolom utama
-            cursor.execute("""
+            # Insert Data (Gunakan query aman 100%)
+            insert_query = """
                 INSERT INTO list_training 
                 (kode_training, nama_training, nama, fungsi, level_posisi, level_training, competency, id_comp, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'Pending', %s, %s, %s, %s, 'Sesuai')
-            """, (kode, nama or '-', nama or '-', fungsi, level_posisi, level_training, competency, id_comp, batch_code, rencana_mulai, rencana_selesai, partisipan, pic))
+            """
+            cursor.execute(insert_query, (
+                kode, 
+                nama or '-', 
+                nama or '-', 
+                fungsi, 
+                level_posisi, 
+                level_training, 
+                competency, 
+                id_comp, 
+                batch_code, 
+                rencana_mulai, 
+                rencana_selesai, 
+                partisipan, 
+                pic
+            ))
             
             conn.commit()
             flash('Data Penjadwalan Batch COE / Training Baru berhasil disimpan!', 'success')
         except Exception as e:
+            conn.rollback()
             print(f"Error inserting training: {e}")
             flash(f'Gagal menyimpan data training: {str(e)}', 'danger')
         finally:
