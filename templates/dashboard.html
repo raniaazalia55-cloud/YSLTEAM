@@ -11,7 +11,7 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; font-size: 11px; }
         
-        /* Sidebar Styling Presisi Desain Awal */
+        /* Sidebar Styling Presisi */
         .sidebar { width: 220px; position: fixed; top: 0; bottom: 0; left: 0; background-color: #ffffff; border-right: 1px solid #e5e9f0; z-index: 100; padding: 15px 10px; display: flex; flex-direction: column; justify-content: space-between; }
         .sidebar-brand { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 20px; }
         .sidebar-brand .text-i { color: #0d6efd; }
@@ -36,7 +36,7 @@
         
         .simulation-banner { background-color: #fff3cd; color: #856404; padding: 6px 12px; font-size: 10px; border-radius: 4px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Table Styling Exact Matching Screenshots */
+        /* Table Styling */
         .table-custom { font-size: 10px; border-collapse: collapse; background: white; }
         .table-custom th, .table-custom td { padding: 6px 8px; vertical-align: middle; border: 1px solid #dee2e6; }
         
@@ -54,12 +54,14 @@
         .btn-action-edit { background-color: #ffc107; border: none; color: #000; font-size: 9px; padding: 3px 6px; border-radius: 3px; display: block; width: 100%; margin-bottom: 3px; font-weight: 500; text-align: center; text-decoration: none; }
         .btn-action-delete { background-color: #dc3545; border: none; color: #fff; font-size: 9px; padding: 3px 6px; border-radius: 3px; display: block; width: 100%; text-align: center; }
         
+        /* Modal Edit Header Warna Kuning Sesuai Screenshot */
+        .modal-header-yellow { background-color: #ffc107; color: #000; font-weight: bold; }
         .modal-header-green { background-color: #198754; color: white; }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar Tampilan Semula -->
+    <!-- Sidebar Tampilan IPD System -->
     <div class="sidebar">
         <div>
             <div class="sidebar-brand">
@@ -143,7 +145,7 @@
                         <th colspan="8" class="header-repo">MASTER REPOSITORY TRAINING</th>
                         <th colspan="7" class="header-coe">COE SCHEDULE & REALISASI (2026)</th>
                         <th colspan="2" class="header-eval">EVALUASI PLANNING</th>
-                        <th rowspan="2" class="header-action" style="width: 90px;">ACTION</th>
+                        <th rowspan="2" class="header-action" style="width: 95px;">ACTION</th>
                     </tr>
                     <tr class="bg-light text-center" style="font-size: 9px;">
                         <th>KODE <i class="bi bi-arrow-down-up"></i></th>
@@ -172,12 +174,12 @@
                         <td>{{ item.FUNGSI or item.fungsi or '-' }}</td>
                         <td>{{ item.LEVEL_POSISI or item.level_posisi or '-' }}</td>
                         <td>{{ item.LEVEL_TRAINING or item.level_training or '-' }}</td>
-                        <td>{{ item.NAMA_TRAINING or item.nama_training or '-' }}</td>
+                        <td>{{ item.NAMA_TRAINING or item.nama_training or item.nama or '-' }}</td>
                         <td>{{ item.COMPETENCY or item.competency or '-' }}</td>
                         <td>{{ item.ID_COMP or item.id_comp or '-' }}</td>
                         <td>{{ item.BATCH or item.batch or '-' }}</td>
                         <td class="text-center">
-                            <span class="badge {% if item.STATUS_COE == 'Selesai' or item.STATUS_COE == 'Approved' %}badge-status-green{% elif item.STATUS_COE == 'Proses' %}badge-status-blue{% else %}badge-status-grey{% endif %}">
+                            <span class="badge {% if item.STATUS_COE == 'Approved' or item.STATUS_COE == 'Selesai' %}badge-status-green{% elif item.STATUS_COE == 'Proses' %}badge-status-blue{% else %}badge-status-grey{% endif %}">
                                 {{ item.STATUS_COE or 'Pending' }}
                             </span>
                         </td>
@@ -188,11 +190,11 @@
                         <td class="text-center">{{ item.partisipan or 0 }}</td>
                         <td>{{ item.PIC or item.pic or '-' }}</td>
                         <td class="text-center">
-                            <small>{{ item.status_planning or 'Sesuai' }}</small>
+                            <small>{{ item.status_planning or 'Belum Realisasi' }}</small>
                         </td>
                         <td class="text-center">
-                            <span class="badge {% if item.status_planning == 'Tidak Sesuai (Rescheduled)' %}badge-status-red{% elif item.status_planning == 'Belum Realisasi' %}badge-status-orange{% else %}badge-status-green{% endif %}">
-                                {{ item.status_planning or 'Sesuai' }}
+                            <span class="badge {% if item.status_planning == 'Tidak Sesuai (Rescheduled)' %}badge-status-red{% elif item.status_planning == 'Sesuai' %}badge-status-green{% else %}badge-status-orange{% endif %}">
+                                {{ item.status_planning or 'Belum Realisasi' }}
                             </span>
                         </td>
                         <td class="text-center">
@@ -205,48 +207,67 @@
                                 </button>
                             </form>
 
-                            <!-- Modal Edit -->
+                            <!-- MODAL EDIT & RESCHEDULE (DESAIN PERSIS SCREENSHOT) -->
                             <div class="modal fade text-start" id="editModal{{ item.id }}" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog">
+                                <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
                                     <div class="modal-content">
                                         <form action="{{ url_for('edit_training', id=item.id) }}" method="POST">
-                                            <div class="modal-header modal-header-green">
-                                                <h6 class="modal-title fw-bold">Edit Training - {{ item.KODE or item.kode_training }}</h6>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            <!-- Header Kuning -->
+                                            <div class="modal-header modal-header-yellow py-2 px-3 d-flex justify-content-between align-items-center">
+                                                <h6 class="modal-title fw-bold fs-7 mb-0">
+                                                    <i class="bi bi-calendar-event me-1"></i> Edit & Reschedule Jadwal Training
+                                                </h6>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <div class="modal-body" style="font-size: 11px;">
-                                                <div class="mb-2">
-                                                    <label class="form-label mb-1">Nama Training</label>
-                                                    <input type="text" name="nama_training" class="form-control form-control-sm" value="{{ item.NAMA_TRAINING or item.nama_training }}" required>
+                                            
+                                            <div class="modal-body p-3" style="font-size: 11px;">
+                                                <!-- Training / Batch Header -->
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold text-secondary mb-0" style="font-size: 10px;">Training / Batch:</label>
+                                                    <div class="fw-bold text-primary" style="font-size: 11px;">
+                                                        {{ item.KODE or item.kode_training }} - {{ item.NAMA_TRAINING or item.nama_training or item.nama }} ({{ item.BATCH or item.batch or 'B001' }})
+                                                    </div>
                                                 </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label mb-1">Fungsi</label>
-                                                    <input type="text" name="fungsi" class="form-control form-control-sm" value="{{ item.FUNGSI or item.fungsi }}">
+
+                                                <!-- Row Rencana Mulai & Rencana Selesai -->
+                                                <div class="row g-2 mb-2">
+                                                    <div class="col-6">
+                                                        <label class="form-label mb-1 text-muted">Rencana Mulai:</label>
+                                                        <input type="date" name="rencana_mulai" class="form-control form-control-sm" value="{{ item.rencana_mulai if item.rencana_mulai != '-' else '' }}">
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="form-label mb-1 text-muted">Rencana Selesai:</label>
+                                                        <input type="date" name="rencana_selesai" class="form-control form-control-sm" value="{{ item.rencana_selesai if item.rencana_selesai != '-' else '' }}">
+                                                    </div>
                                                 </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label mb-1">PIC</label>
-                                                    <input type="text" name="pic" class="form-control form-control-sm" value="{{ item.PIC or item.pic }}">
+
+                                                <!-- Row Realisasi Mulai & Realisasi Selesai (Text Hijau Sesuai Screenshot) -->
+                                                <div class="row g-2 mb-2">
+                                                    <div class="col-6">
+                                                        <label class="form-label mb-1 fw-bold text-success">Realisasi Mulai:</label>
+                                                        <input type="date" name="realisasi_mulai" class="form-control form-control-sm" value="{{ item.realisasi_mulai if item.realisasi_mulai != '-' else '' }}">
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="form-label mb-1 fw-bold text-success">Realisasi Selesai:</label>
+                                                        <input type="date" name="realisasi_selesai" class="form-control form-control-sm" value="{{ item.realisasi_selesai if item.realisasi_selesai != '-' else '' }}">
+                                                    </div>
                                                 </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label mb-1">Status COE</label>
+
+                                                <!-- Status COE Dropdown -->
+                                                <div class="mb-3">
+                                                    <label class="form-label mb-1 text-muted">Status COE:</label>
                                                     <select name="status_coe" class="form-select form-select-sm">
                                                         <option value="Pending" {% if item.STATUS_COE == 'Pending' %}selected{% endif %}>Pending</option>
                                                         <option value="Proses" {% if item.STATUS_COE == 'Proses' %}selected{% endif %}>Proses</option>
-                                                        <option value="Selesai" {% if item.STATUS_COE == 'Selesai' %}selected{% endif %}>Selesai</option>
-                                                    </select>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label mb-1">Status Planning</label>
-                                                    <select name="status_planning" class="form-select form-select-sm">
-                                                        <option value="Sesuai" {% if item.status_planning == 'Sesuai' %}selected{% endif %}>Sesuai</option>
-                                                        <option value="Tidak Sesuai (Rescheduled)" {% if item.status_planning == 'Tidak Sesuai (Rescheduled)' %}selected{% endif %}>Tidak Sesuai (Rescheduled)</option>
-                                                        <option value="Belum Realisasi" {% if item.status_planning == 'Belum Realisasi' %}selected{% endif %}>Belum Realisasi</option>
+                                                        <option value="Approved" {% if item.STATUS_COE == 'Approved' %}selected{% endif %}>Approved</option>
+                                                        <option value="Completed" {% if item.STATUS_COE == 'Completed' or item.STATUS_COE == 'Selesai' %}selected{% endif %}>Completed</option>
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="modal-footer py-1">
-                                                <button type="button" class="btn btn-secondary btn-sm py-0" data-bs-dismiss="modal">Batal</button>
-                                                <button type="submit" class="btn btn-success btn-sm py-0">Simpan Perubahan</button>
+
+                                            <div class="modal-footer py-2 px-3 bg-light">
+                                                <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-primary btn-sm px-3">Simpan Perubahan & Generate Flag</button>
                                             </div>
                                         </form>
                                     </div>
@@ -302,7 +323,6 @@
                     </ul>
 
                     <div class="tab-content" id="addTrainingTabContent">
-                        <!-- TAB 1: PENJADWALAN BATCH COE BARU (DENGAN FORM TANGGAL & PIC) -->
                         <div class="tab-pane fade show active" id="batch-tab-pane" role="tabpanel">
                             <form action="{{ url_for('add_training') }}" method="POST">
                                 <div class="mb-3">
@@ -311,7 +331,7 @@
                                         <option value="">-- Pilih Training --</option>
                                         {% for item in trainings %}
                                         <option value="{{ item.KODE or item.kode_training }}">
-                                            {{ item.KODE or item.kode_training }} - {{ item.NAMA_TRAINING or item.nama_training }}
+                                            {{ item.KODE or item.kode_training }} - {{ item.NAMA_TRAINING or item.nama_training or item.nama }}
                                         </option>
                                         {% endfor %}
                                     </select>
@@ -343,7 +363,6 @@
                             </form>
                         </div>
 
-                        <!-- TAB 2: MASTER TRAINING BARU (REPOSITORY) -->
                         <div class="tab-pane fade" id="repository-tab-pane" role="tabpanel">
                             <form action="{{ url_for('add_training') }}" method="POST">
                                 <div class="row g-2">

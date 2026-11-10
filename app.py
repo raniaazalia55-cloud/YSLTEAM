@@ -90,7 +90,6 @@ def add_training():
     if conn:
         cursor = conn.cursor(dictionary=True)
         try:
-            # Ambil sampel kolom untuk mengecek nama kolom asli
             cursor.execute("SELECT * FROM list_training LIMIT 1")
             sample = cursor.fetchone() or {}
             
@@ -102,7 +101,6 @@ def add_training():
             col_comp = 'competency' if 'competency' in sample else 'COMPETENCY'
             col_id_comp = 'id_comp' if 'id_comp' in sample else ('id_competency_level' if 'id_competency_level' in sample else 'ID_COMP')
 
-            # Jika dari Tab 1, cari detail dari repository master
             if kode and not nama:
                 cursor.execute(f"SELECT * FROM list_training WHERE {col_kode} = %s LIMIT 1", (kode,))
                 existing = cursor.fetchone()
@@ -114,21 +112,18 @@ def add_training():
                     competency = existing.get(col_comp) or '-'
                     id_comp = existing.get(col_id_comp) or '-'
 
-            # FIX UTAMA: Hitung nomor 'no' terbesar agar field 'no' wajib terisi
             cursor.execute("SELECT MAX(CAST(`no` AS UNSIGNED)) as max_no FROM list_training")
             row_no = cursor.fetchone()
             next_no = (row_no['max_no'] + 1) if (row_no and row_no.get('max_no')) else 1
 
-            # Hitung Batch Number
             cursor.execute(f"SELECT COUNT(*) as total FROM list_training WHERE {col_kode} = %s", (kode,))
             count_res = cursor.fetchone()
             batch_code = f"B{(count_res['total'] + 1):03d}" if count_res else "B001"
 
-            # Insert Lengkap termasuk kolom 'no'
             sql = f"""
                 INSERT INTO list_training 
                 (`no`, {col_kode}, {col_nama}, {col_fungsi}, {col_posisi}, {col_lvl_tr}, {col_comp}, {col_id_comp}, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'Pending', %s, %s, %s, %s, 'Sesuai')
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'Pending', %s, %s, %s, %s, 'Belum Realisasi')
             """
             cursor.execute(sql, (next_no, kode, nama or '-', fungsi, level_posisi, level_training, competency, id_comp, batch_code, rencana_mulai, rencana_selesai, partisipan, pic))
             conn.commit()
@@ -147,24 +142,39 @@ def edit_training(id):
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    nama_training = request.form.get('nama_training')
-    fungsi = request.form.get('fungsi')
-    pic = request.form.get('pic')
-    status_coe = request.form.get('status_coe')
-    status_planning = request.form.get('status_planning')
+    rencana_mulai = request.form.get('rencana_mulai', '').strip() or '-'
+    rencana_selesai = request.form.get('rencana_selesai', '').strip() or '-'
+    realisasi_mulai = request.form.get('realisasi_mulai', '').strip() or '-'
+    realisasi_selesai = request.form.get('realisasi_selesai', '').strip() or '-'
+    status_coe = request.form.get('status_coe', 'Pending')
     
+    # Generate Flag Status Planning Otomatis
+    if realisasi_mulai != '-' and realisasi_mulai != '':
+        if realisasi_mulai == rencana_mulai:
+            status_planning = 'Sesuai'
+        else:
+            status_planning = 'Tidak Sesuai (Rescheduled)'
+    else:
+        status_planning = 'Belum Realisasi'
+
     conn = get_db_connection()
     if conn:
         cursor = conn.cursor()
         try:
-            cursor.execute("UPDATE list_training SET nama_training=%s, fungsi=%s, PIC=%s, STATUS_COE=%s, status_planning=%s WHERE id=%s", (nama_training, fungsi, pic, status_coe, status_planning, id))
+            cursor.execute("""
+                UPDATE list_training 
+                SET rencana_mulai=%s, rencana_selesai=%s, realisasi_mulai=%s, realisasi_selesai=%s, STATUS_COE=%s, status_planning=%s 
+                WHERE id=%s
+            """, (rencana_mulai, rencana_selesai, realisasi_mulai, realisasi_selesai, status_coe, status_planning, id))
             conn.commit()
-            flash('Data training berhasil diperbarui!', 'success')
+            flash('Perubahan jadwal berhasil disimpan & Flag Evaluasi diperbarui!', 'success')
         except Exception as e:
-            flash(f'Error Update: {str(e)}', 'danger')
+            conn.rollback()
+            flash(f'Gagal memperbarui jadwal: {str(e)}', 'danger')
         finally:
             cursor.close()
             conn.close()
+            
     return redirect(url_for('dashboard'))
 
 @app.route('/delete_training/<int:id>', methods=['POST'])
