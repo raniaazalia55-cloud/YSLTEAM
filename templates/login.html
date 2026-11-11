@@ -74,7 +74,7 @@
         }
 
         .kpp-logo-large {
-            height: 68px; /* Ukuran Logo Diperbesar Maksimal */
+            height: 68px;
             width: auto;
             object-fit: contain;
             display: block;
@@ -278,13 +278,13 @@
             {% endwith %}
 
             <form action="{{ url_for('login') }}" method="POST">
-                <!-- Selector Role: Staf vs Manager -->
+                <!-- Selector Role Baru: Staf vs Staf HCD -->
                 <div class="role-selector">
                     <input type="radio" name="role" id="role_staf" value="staf" checked>
                     <label for="role_staf"><i class="bi bi-person me-1"></i> Staf</label>
                     
-                    <input type="radio" name="role" id="role_manager" value="manager">
-                    <label for="role_manager"><i class="bi bi-person-badge me-1"></i> Manager</label>
+                    <input type="radio" name="role" id="role_staf_hcd" value="staf hcd">
+                    <label for="role_staf_hcd"><i class="bi bi-person-badge-fill me-1"></i> Staf HCD</label>
                 </div>
 
                 <!-- Username Input -->
