@@ -32,7 +32,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
             overflow: hidden;
             display: flex;
-            min-height: 500px;
+            min-height: 520px;
         }
 
         /* Banner Kiri dengan Lingkaran Gradient */
@@ -67,13 +67,30 @@
             font-size: 32px;
             font-weight: 800;
             letter-spacing: 1px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             line-height: 1.2;
+        }
+
+        /* Container Logo KPP Mining di bawah Welcome */
+        .kpp-logo-banner-wrapper {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 18px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        .kpp-logo-large {
+            height: 55px; /* Ukuran Logo Diperbesar */
+            width: auto;
+            object-fit: contain;
+            display: block;
         }
 
         .banner-content p {
             font-size: 13px;
-            opacity: 0.9;
+            opacity: 0.95;
             line-height: 1.6;
             margin-bottom: 0;
         }
@@ -89,9 +106,6 @@
         }
 
         .form-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             margin-bottom: 25px;
         }
 
@@ -100,11 +114,6 @@
             font-weight: 700;
             color: #212529;
             margin: 0;
-        }
-
-        .kpp-logo {
-            height: 38px;
-            object-fit: contain;
         }
 
         /* Selector Role Toggle */
@@ -226,6 +235,7 @@
             .login-card { flex-direction: column; }
             .banner-side { padding: 30px 25px; text-align: center; }
             .form-side { padding: 30px 25px; }
+            .kpp-logo-banner-wrapper { margin-left: auto; margin-right: auto; }
         }
     </style>
 </head>
@@ -240,16 +250,21 @@
             
             <div class="banner-content">
                 <h1>WELCOME TO IPD</h1>
+                
+                <!-- Logo KPP Mining Besar di Bawah Welcome -->
+                <div class="kpp-logo-banner-wrapper">
+                    <img src="{{ url_for('static', filename='kpp_logo.png') }}" alt="KPP Mining Logo" class="kpp-logo-large" onerror="this.src='https://via.placeholder.com/180x60?text=KPP+MINING'">
+                </div>
+
                 <p>Integrated Database Training — System pengelolaan data planning & history training karyawan terintegrasi PT Kalimantan Prima Persada.</p>
             </div>
         </div>
 
         <!-- Form Kanan -->
         <div class="form-side">
-            <!-- Header: Sign in & Logo KPP -->
+            <!-- Header: Sign in -->
             <div class="form-header">
                 <h2>Sign in</h2>
-                <img src="{{ url_for('static', filename='kpp_logo.png') }}" alt="KPP Mining Logo" class="kpp-logo" onerror="this.src='https://via.placeholder.com/120x40?text=KPP+MINING'">
             </div>
 
             <!-- Flash Alert jika salah login -->
@@ -302,9 +317,9 @@
     </div>
 
     <script>
-        function togglePassword() {
+        function togglePassword(event) {
             const pwdInput = document.getElementById('passwordInput');
-            const btn = event.target;
+            const btn = event ? event.target : document.querySelector('.btn-toggle-pwd');
             if (pwdInput.type === 'password') {
                 pwdInput.type = 'text';
                 btn.textContent = 'HIDE';
