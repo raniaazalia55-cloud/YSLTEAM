@@ -11,7 +11,6 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; font-size: 11px; }
         
-        /* Sidebar Styling */
         .sidebar { width: 220px; position: fixed; top: 0; bottom: 0; left: 0; background-color: #ffffff; border-right: 1px solid #e5e9f0; z-index: 100; padding: 15px 10px; display: flex; flex-direction: column; justify-content: space-between; }
         .sidebar-brand { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 20px; }
         .sidebar-brand .text-i { color: #0d6efd; }
@@ -36,7 +35,6 @@
         
         .simulation-banner { background-color: #fff3cd; color: #856404; padding: 6px 12px; font-size: 10px; border-radius: 4px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Table Styling */
         .table-custom { font-size: 10px; border-collapse: collapse; background: white; }
         .table-custom th, .table-custom td { padding: 6px 8px; vertical-align: middle; border: 1px solid #dee2e6; }
         
@@ -97,10 +95,15 @@
                 <div class="sub-title">Integrasi Repository Training, COE Schedule, & Evaluasi Planning</div>
             </div>
             <div class="d-flex align-items-center gap-2">
+                <!-- HANYA STAF HCD YANG BISA MANAMBAH BATCH COE -->
+                {% if session.get('role') == 'STAF HCD' %}
                 <button class="btn btn-sm btn-primary py-1" data-bs-toggle="modal" data-bs-target="#addTrainingModal" style="font-size: 10px;">
-                    <i class="bi bi-plus-circle me-1"></i> Tambah Data Training Baru
+                    <i class="bi bi-plus-circle me-1"></i> Penjadwalan Batch COE Baru
                 </button>
-                <span class="badge bg-primary px-2 py-1" style="font-size: 10px;"><i class="bi bi-person-fill"></i> HCD SPECIALIST (HCD)</span>
+                {% endif %}
+                <span class="badge {% if session.get('role') == 'STAF HCD' %}bg-primary{% else %}bg-secondary{% endif %} px-2 py-1" style="font-size: 10px;">
+                    <i class="bi bi-person-fill"></i> {{ session.get('role', 'STAF') }}
+                </span>
             </div>
         </div>
 
@@ -143,9 +146,11 @@
                 <thead>
                     <tr>
                         <th colspan="8" class="header-repo">MASTER REPOSITORY TRAINING</th>
-                        <th colspan="7" class="header-coe">COE SCHEDULE & REALISASI (2026)</th>
+                        <th colspan="{% if session.get('role') == 'STAF HCD' %}8{% else %}7{% endif %}" class="header-coe">COE SCHEDULE & REALISASI (2026)</th>
                         <th colspan="2" class="header-eval">EVALUASI PLANNING</th>
+                        {% if session.get('role') == 'STAF HCD' %}
                         <th rowspan="2" class="header-action" style="width: 95px;">ACTION</th>
+                        {% endif %}
                     </tr>
                     <tr class="bg-light text-center" style="font-size: 9px;">
                         <th>KODE <i class="bi bi-arrow-down-up"></i></th>
@@ -163,6 +168,9 @@
                         <th>REALISASI SELESAI</th>
                         <th>PARTISIPAN</th>
                         <th>PIC</th>
+                        {% if session.get('role') == 'STAF HCD' %}
+                        <th class="bg-warning text-dark">BIAYA (IDR)</th>
+                        {% endif %}
                         <th>STATUS PLANNING <br><select class="form-select form-select-sm p-0 fs-8" style="font-size: 9px;"><option>- Semua -</option></select></th>
                         <th>HASIL EVALUASI</th>
                     </tr>
@@ -189,6 +197,12 @@
                         <td>{{ item.realisasi_selesai or '-' }}</td>
                         <td class="text-center">{{ item.partisipan or 0 }}</td>
                         <td>{{ item.PIC or item.pic or '-' }}</td>
+                        
+                        <!-- TABEL BIAYA HANYA MUNCUL UNTUK STAF HCD -->
+                        {% if session.get('role') == 'STAF HCD' %}
+                        <td class="fw-bold text-end">Rp {{ "{:,.0f}".format(item.biaya or 0) }}</td>
+                        {% endif %}
+
                         <td class="text-center">
                             <small>{{ item.status_planning or 'Belum Realisasi' }}</small>
                         </td>
@@ -197,6 +211,9 @@
                                 {{ item.status_planning or 'Belum Realisasi' }}
                             </span>
                         </td>
+
+                        <!-- ACTION (EDIT/HAPUS) HANYA UNTUK STAF HCD -->
+                        {% if session.get('role') == 'STAF HCD' %}
                         <td class="text-center">
                             <button class="btn-action-edit" data-bs-toggle="modal" data-bs-target="#editModal{{ item.id }}">
                                 <i class="bi bi-pencil-square"></i> Edit / Reschedule
@@ -207,7 +224,7 @@
                                 </button>
                             </form>
 
-                            <!-- MODAL EDIT & RESCHEDULE -->
+                            <!-- MODAL EDIT & RESCHEDULE FOR STAF HCD -->
                             <div class="modal fade text-start" id="editModal{{ item.id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
                                     <div class="modal-content">
@@ -249,53 +266,46 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="mb-3">
-                                                    <label class="form-label mb-1 text-muted">Status COE:</label>
-                                                    <select name="status_coe" class="form-select form-select-sm">
-                                                        <option value="Pending" {% if item.STATUS_COE == 'Pending' %}selected{% endif %}>Pending</option>
-                                                        <option value="Proses" {% if item.STATUS_COE == 'Proses' %}selected{% endif %}>Proses</option>
-                                                        <option value="Approved" {% if item.STATUS_COE == 'Approved' %}selected{% endif %}>Approved</option>
-                                                        <option value="Completed" {% if item.STATUS_COE == 'Completed' or item.STATUS_COE == 'Selesai' %}selected{% endif %}>Completed</option>
-                                                    </select>
+                                                <div class="row g-2 mb-3">
+                                                    <div class="col-6">
+                                                        <label class="form-label mb-1 text-muted">Status COE:</label>
+                                                        <select name="status_coe" class="form-select form-select-sm">
+                                                            <option value="Pending" {% if item.STATUS_COE == 'Pending' %}selected{% endif %}>Pending</option>
+                                                            <option value="Proses" {% if item.STATUS_COE == 'Proses' %}selected{% endif %}>Proses</option>
+                                                            <option value="Approved" {% if item.STATUS_COE == 'Approved' %}selected{% endif %}>Approved</option>
+                                                            <option value="Completed" {% if item.STATUS_COE == 'Completed' or item.STATUS_COE == 'Selesai' %}selected{% endif %}>Completed</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="form-label mb-1 fw-bold text-dark">Biaya Training (IDR):</label>
+                                                        <input type="number" name="biaya" class="form-control form-control-sm" value="{{ item.biaya or 0 }}" placeholder="5000000">
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <div class="modal-footer py-2 px-3 bg-light">
                                                 <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Batal</button>
-                                                <button type="submit" class="btn btn-primary btn-sm px-3">Simpan Perubahan & Generate Flag</button>
+                                                <button type="submit" class="btn btn-primary btn-sm px-3">Simpan Perubahan</button>
                                             </div>
                                         </form>
                                     </div>
                                 </div>
                             </div>
                         </td>
+                        {% endif %}
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="18" class="text-center py-4">Belum ada data training yang tersedia.</td>
+                        <td colspan="19" class="text-center py-4">Belum ada data training yang tersedia.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-
-        <!-- Footer Pagination -->
-        <div class="d-flex justify-content-between align-items-center mt-2">
-            <div style="font-size: 10px; color: #666;">
-                Showing 1 to {{ trainings|length }} of {{ trainings|length }} entries
-            </div>
-            <div>
-                <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled"><a class="page-link" href="#" style="font-size: 10px;">Sebelumnya</a></li>
-                    <li class="page-item active"><a class="page-link" href="#" style="font-size: 10px;">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#" style="font-size: 10px;">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#" style="font-size: 10px;">Selanjutnya</a></li>
-                </ul>
-            </div>
-        </div>
     </div>
 
-    <!-- MODAL PENJADWALAN BATCH COE BARU (HANYA METODE PENJADWALAN COE) -->
+    <!-- MODAL PENJADWALAN BATCH COE BARU (DILENGKAPI INPUT BIAYA UNTUK STAF HCD) -->
+    {% if session.get('role') == 'STAF HCD' %}
     <div class="modal fade" id="addTrainingModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
@@ -342,6 +352,10 @@
                                 <label class="form-label">PIC Training:</label>
                                 <input type="text" name="pic" class="form-control form-control-sm" placeholder="Nama PIC" required>
                             </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold text-dark">Anggaran / Biaya Training (IDR):</label>
+                                <input type="number" name="biaya" class="form-control form-control-sm" placeholder="Contoh: 15000000" required>
+                            </div>
                         </div>
 
                         <div class="text-end mt-4">
@@ -353,6 +367,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -9,11 +9,14 @@
         <small class="text-muted">Daftar Katalog Master Judul Training Perusahaan</small>
     </div>
     <div class="d-flex align-items-center gap-2">
+        <!-- TOMBOL TAMBAH MASTER HANYA UNTUK STAF HCD -->
+        {% if session.get('role') == 'STAF HCD' %}
         <button class="btn btn-primary btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#addRepoModal">
             <i class="bi bi-plus-circle-fill me-1"></i> Tambah Master Training Baru
         </button>
-        <span class="badge bg-primary px-3 py-2 text-uppercase">
-            <i class="bi bi-person-badge me-1"></i> {{ session.get('user_name', 'HCD SPECIALIST') }} ({{ session.get('role', 'HCD') }})
+        {% endif %}
+        <span class="badge {% if session.get('role') == 'STAF HCD' %}bg-primary{% else %}bg-secondary{% endif %} px-3 py-2 text-uppercase">
+            <i class="bi bi-person-badge me-1"></i> {{ session.get('user_name', 'USER') }} ({{ session.get('role', 'STAF') }})
         </span>
     </div>
 </div>
@@ -84,7 +87,8 @@
     </table>
 </div>
 
-<!-- MODAL TAMBAH MASTER TRAINING BARU -->
+<!-- MODAL TAMBAH MASTER TRAINING BARU (HANYA STAF HCD) -->
+{% if session.get('role') == 'STAF HCD' %}
 <div class="modal fade" id="addRepoModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -149,4 +153,5 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}
