@@ -21,6 +21,27 @@ def get_db_connection():
         print(f"Database error: {e}")
         return None
 
+def init_tables(conn):
+    """Memastikan tabel master_repository siap digunakan"""
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS master_repository (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            kode_training VARCHAR(50) UNIQUE NOT NULL,
+            nama_training VARCHAR(255) NOT NULL,
+            fungsi VARCHAR(100) DEFAULT '-',
+            id_fungsi VARCHAR(50) DEFAULT '-',
+            level_posisi VARCHAR(50) DEFAULT '-',
+            id_level_posisi VARCHAR(50) DEFAULT '-',
+            level_training VARCHAR(50) DEFAULT '-',
+            id_level_training VARCHAR(50) DEFAULT '-',
+            competency VARCHAR(150) DEFAULT '-',
+            id_competency_level VARCHAR(50) DEFAULT '-'
+        )
+    """)
+    conn.commit()
+    cursor.close()
+
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -41,7 +62,8 @@ def login():
                 if check_password_hash(stored_pwd, password) or stored_pwd == password or password == 'hcd':
                     session['user_id'] = user.get('id')
                     session['username'] = user.get('username')
-                    session['role'] = user.get('role', 'user')
+                    session['user_name'] = user.get('username')
+                    session['role'] = user.get('role', 'HCD SPECIALIST (HCD)')
                     return redirect(url_for('dashboard'))
 
         flash('Invalid Username or Password', 'danger')
@@ -54,19 +76,86 @@ def dashboard():
         return redirect(url_for('login'))
     
     trainings = []
+    repositories = []
     conn = get_db_connection()
     if conn:
+        init_tables(conn)
         cursor = conn.cursor(dictionary=True)
         try:
             cursor.execute("SELECT * FROM list_training ORDER BY id DESC")
             trainings = cursor.fetchall()
+            
+            cursor.execute("SELECT * FROM master_repository ORDER BY kode_training ASC")
+            repositories = cursor.fetchall()
         except Exception as e:
-            print(f"Error fetching list_training: {e}")
+            print(f"Error fetching data: {e}")
         finally:
             cursor.close()
             conn.close()
 
-    return render_template('dashboard.html', username=session.get('username'), trainings=trainings)
+    return render_template('dashboard.html', username=session.get('username'), trainings=trainings, repositories=repositories)
+
+@app.route('/repository')
+def repository():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    repositories = []
+    conn = get_db_connection()
+    if conn:
+        init_tables(conn)
+        cursor = conn.cursor(dictionary=True)
+        try:
+            cursor.execute("SELECT * FROM master_repository ORDER BY id DESC")
+            repositories = cursor.fetchall()
+        except Exception as e:
+            print(f"Error fetching repository: {e}")
+        finally:
+            cursor.close()
+            conn.close()
+
+    return render_template('repository.html', username=session.get('username'), repositories=repositories)
+
+@app.route('/add_master_repository', methods=['POST'])
+def add_master_repository():
+    """Route khusus menyimpan Master Training Baru ke tabel master_repository"""
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    kode = request.form.get('kode_training', '').strip()
+    nama = request.form.get('nama_training', '').strip()
+    fungsi = request.form.get('fungsi', '-').strip() or '-'
+    id_fungsi = request.form.get('id_fungsi', '-').strip() or '-'
+    level_posisi = request.form.get('level_posisi', '-').strip() or '-'
+    id_level_posisi = request.form.get('id_level_posisi', '-').strip() or '-'
+    level_training = request.form.get('level_training', '-').strip() or '-'
+    id_level_training = request.form.get('id_level_training', '-').strip() or '-'
+    competency = request.form.get('competency', '-').strip() or '-'
+    id_competency_level = request.form.get('id_competency_level', '-').strip() or '-'
+    
+    redirect_to = request.form.get('redirect_to', 'repository')
+
+    conn = get_db_connection()
+    if conn:
+        init_tables(conn)
+        cursor = conn.cursor()
+        try:
+            sql = """
+                INSERT INTO master_repository 
+                (kode_training, nama_training, fungsi, id_fungsi, level_posisi, id_level_posisi, level_training, id_level_training, competency, id_competency_level)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(sql, (kode, nama, fungsi, id_fungsi, level_posisi, id_level_posisi, level_training, id_level_training, competency, id_competency_level))
+            conn.commit()
+            flash('Master Training Baru berhasil disimpan di Repository!', 'success')
+        except Exception as e:
+            conn.rollback()
+            flash(f'Gagal menyimpan Master Repository: {str(e)}', 'danger')
+        finally:
+            cursor.close()
+            conn.close()
+
+    return redirect(url_for(redirect_to))
 
 @app.route('/add_training', methods=['POST'])
 def add_training():
@@ -74,13 +163,6 @@ def add_training():
         return redirect(url_for('login'))
     
     kode = request.form.get('kode_training', '').strip()
-    nama = request.form.get('nama_training', '').strip()
-    fungsi = request.form.get('fungsi', '-').strip() or '-'
-    level_posisi = request.form.get('level_posisi', '-').strip() or '-'
-    level_training = request.form.get('level_training', '-').strip() or '-'
-    competency = request.form.get('competency', '-').strip() or '-'
-    id_comp = request.form.get('id_comp', '-').strip() or '-'
-    
     rencana_mulai = request.form.get('rencana_mulai', '-').strip() or '-'
     rencana_selesai = request.form.get('rencana_selesai', '-').strip() or '-'
     partisipan = request.form.get('partisipan', '0').strip()
@@ -88,46 +170,45 @@ def add_training():
     
     conn = get_db_connection()
     if conn:
+        init_tables(conn)
         cursor = conn.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT * FROM list_training LIMIT 1")
-            sample = cursor.fetchone() or {}
+            cursor.execute("SELECT * FROM master_repository WHERE kode_training = %s LIMIT 1", (kode,))
+            master = cursor.fetchone()
             
-            col_kode = 'kode_training' if 'kode_training' in sample else 'KODE'
-            col_nama = 'nama_training' if 'nama_training' in sample else ('nama' if 'nama' in sample else 'NAMA_TRAINING')
-            col_fungsi = 'fungsi' if 'fungsi' in sample else 'FUNGSI'
-            col_posisi = 'level_posisi' if 'level_posisi' in sample else 'LEVEL_POSISI'
-            col_lvl_tr = 'level_training' if 'level_training' in sample else 'LEVEL_TRAINING'
-            col_comp = 'competency' if 'competency' in sample else 'COMPETENCY'
-            col_id_comp = 'id_comp' if 'id_comp' in sample else ('id_competency_level' if 'id_competency_level' in sample else 'ID_COMP')
-
-            if kode and not nama:
-                cursor.execute(f"SELECT * FROM list_training WHERE {col_kode} = %s LIMIT 1", (kode,))
-                existing = cursor.fetchone()
-                if existing:
-                    nama = existing.get(col_nama) or '-'
-                    fungsi = existing.get(col_fungsi) or '-'
-                    level_posisi = existing.get(col_posisi) or '-'
-                    level_training = existing.get(col_lvl_tr) or '-'
-                    competency = existing.get(col_comp) or '-'
-                    id_comp = existing.get(col_id_comp) or '-'
+            if master:
+                nama = master.get('nama_training', '-')
+                fungsi = master.get('fungsi', '-')
+                level_posisi = master.get('level_posisi', '-')
+                level_training = master.get('level_training', '-')
+                competency = master.get('competency', '-')
+                id_comp = master.get('id_competency_level', '-')
+            else:
+                cursor.execute("SELECT * FROM list_training WHERE kode_training = %s OR KODE = %s LIMIT 1", (kode, kode))
+                master = cursor.fetchone() or {}
+                nama = master.get('nama_training') or master.get('nama') or master.get('NAMA_TRAINING') or '-'
+                fungsi = master.get('fungsi') or master.get('FUNGSI') or '-'
+                level_posisi = master.get('level_posisi') or master.get('LEVEL_POSISI') or '-'
+                level_training = master.get('level_training') or master.get('LEVEL_TRAINING') or '-'
+                competency = master.get('competency') or master.get('COMPETENCY') or '-'
+                id_comp = master.get('id_comp') or master.get('ID_COMP') or '-'
 
             cursor.execute("SELECT MAX(CAST(`no` AS UNSIGNED)) as max_no FROM list_training")
             row_no = cursor.fetchone()
             next_no = (row_no['max_no'] + 1) if (row_no and row_no.get('max_no')) else 1
 
-            cursor.execute(f"SELECT COUNT(*) as total FROM list_training WHERE {col_kode} = %s", (kode,))
+            cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE kode_training = %s OR KODE = %s", (kode, kode))
             count_res = cursor.fetchone()
             batch_code = f"B{(count_res['total'] + 1):03d}" if count_res else "B001"
 
-            sql = f"""
+            sql = """
                 INSERT INTO list_training 
-                (`no`, {col_kode}, {col_nama}, {col_fungsi}, {col_posisi}, {col_lvl_tr}, {col_comp}, {col_id_comp}, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'Pending', %s, %s, %s, %s, 'Belum Realisasi')
+                (`no`, kode_training, nama_training, nama, fungsi, level_posisi, level_training, competency, id_comp, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'Pending', %s, %s, %s, %s, 'Belum Realisasi')
             """
-            cursor.execute(sql, (next_no, kode, nama or '-', fungsi, level_posisi, level_training, competency, id_comp, batch_code, rencana_mulai, rencana_selesai, partisipan, pic))
+            cursor.execute(sql, (next_no, kode, nama, nama, fungsi, level_posisi, level_training, competency, id_comp, batch_code, rencana_mulai, rencana_selesai, partisipan, pic))
             conn.commit()
-            flash('Berhasil menyimpan Penjadwalan Batch COE / Master Training Baru!', 'success')
+            flash('Penjadwalan Batch COE Baru berhasil ditambahkan!', 'success')
         except Exception as e:
             conn.rollback()
             flash(f'ERROR DATABASE: {str(e)}', 'danger')
@@ -148,7 +229,6 @@ def edit_training(id):
     realisasi_selesai = request.form.get('realisasi_selesai', '').strip() or '-'
     status_coe = request.form.get('status_coe', 'Pending')
     
-    # Generate Flag Status Planning Otomatis
     if realisasi_mulai != '-' and realisasi_mulai != '':
         if realisasi_mulai == rencana_mulai:
             status_planning = 'Sesuai'

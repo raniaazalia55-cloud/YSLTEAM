@@ -54,7 +54,6 @@
         .btn-action-edit { background-color: #ffc107; border: none; color: #000; font-size: 9px; padding: 3px 6px; border-radius: 3px; display: block; width: 100%; margin-bottom: 3px; font-weight: 500; text-align: center; text-decoration: none; }
         .btn-action-delete { background-color: #dc3545; border: none; color: #fff; font-size: 9px; padding: 3px 6px; border-radius: 3px; display: block; width: 100%; text-align: center; }
         
-        /* Modal Edit Header Warna Kuning Sesuai Screenshot */
         .modal-header-yellow { background-color: #ffc107; color: #000; font-weight: bold; }
         .modal-header-green { background-color: #198754; color: white; }
     </style>
@@ -75,6 +74,7 @@
                 <li><a href="#" class="active"><i class="bi bi-hdd-stack-fill"></i> INTEGRATED DATABASE TRAINING</a></li>
                 <li><a href="#"><i class="bi bi-clock-history"></i> HISTORY</a></li>
                 <li><a href="#"><i class="bi bi-plus-circle-fill"></i> MASTER & SET UP</a></li>
+                <li><a href="{{ url_for('repository') }}"><i class="bi bi-folder-fill"></i> REPOSITORY (MASTER)</a></li>
                 <li><a href="#"><i class="bi bi-calendar-event-fill"></i> COE</a></li>
                 <li><a href="#"><i class="bi bi-archive-fill"></i> COMPETENCY DIRECTORY</a></li>
                 <li><a href="#"><i class="bi bi-diagram-3-fill"></i> COMPETENCY MATRIX</a></li>
@@ -207,12 +207,11 @@
                                 </button>
                             </form>
 
-                            <!-- MODAL EDIT & RESCHEDULE (DESAIN PERSIS SCREENSHOT) -->
+                            <!-- MODAL EDIT & RESCHEDULE -->
                             <div class="modal fade text-start" id="editModal{{ item.id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
                                     <div class="modal-content">
                                         <form action="{{ url_for('edit_training', id=item.id) }}" method="POST">
-                                            <!-- Header Kuning -->
                                             <div class="modal-header modal-header-yellow py-2 px-3 d-flex justify-content-between align-items-center">
                                                 <h6 class="modal-title fw-bold fs-7 mb-0">
                                                     <i class="bi bi-calendar-event me-1"></i> Edit & Reschedule Jadwal Training
@@ -221,7 +220,6 @@
                                             </div>
                                             
                                             <div class="modal-body p-3" style="font-size: 11px;">
-                                                <!-- Training / Batch Header -->
                                                 <div class="mb-3">
                                                     <label class="form-label fw-bold text-secondary mb-0" style="font-size: 10px;">Training / Batch:</label>
                                                     <div class="fw-bold text-primary" style="font-size: 11px;">
@@ -229,7 +227,6 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Row Rencana Mulai & Rencana Selesai -->
                                                 <div class="row g-2 mb-2">
                                                     <div class="col-6">
                                                         <label class="form-label mb-1 text-muted">Rencana Mulai:</label>
@@ -241,7 +238,6 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Row Realisasi Mulai & Realisasi Selesai (Text Hijau Sesuai Screenshot) -->
                                                 <div class="row g-2 mb-2">
                                                     <div class="col-6">
                                                         <label class="form-label mb-1 fw-bold text-success">Realisasi Mulai:</label>
@@ -253,7 +249,6 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Status COE Dropdown -->
                                                 <div class="mb-3">
                                                     <label class="form-label mb-1 text-muted">Status COE:</label>
                                                     <select name="status_coe" class="form-select form-select-sm">
@@ -323,17 +318,26 @@
                     </ul>
 
                     <div class="tab-content" id="addTrainingTabContent">
+                        <!-- TAB 1: PENJADWALAN BATCH COE BARU -->
                         <div class="tab-pane fade show active" id="batch-tab-pane" role="tabpanel">
                             <form action="{{ url_for('add_training') }}" method="POST">
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Pilih Training (Repository):</label>
                                     <select class="form-select form-select-sm" name="kode_training" required>
                                         <option value="">-- Pilih Training --</option>
-                                        {% for item in trainings %}
-                                        <option value="{{ item.KODE or item.kode_training }}">
-                                            {{ item.KODE or item.kode_training }} - {{ item.NAMA_TRAINING or item.nama_training or item.nama }}
-                                        </option>
-                                        {% endfor %}
+                                        {% if repositories %}
+                                            {% for item in repositories %}
+                                            <option value="{{ item.kode_training }}">
+                                                {{ item.kode_training }} - {{ item.nama_training }}
+                                            </option>
+                                            {% endfor %}
+                                        {% else %}
+                                            {% for item in trainings %}
+                                            <option value="{{ item.KODE or item.kode_training }}">
+                                                {{ item.KODE or item.kode_training }} - {{ item.NAMA_TRAINING or item.nama_training or item.nama }}
+                                            </option>
+                                            {% endfor %}
+                                        {% endif %}
                                     </select>
                                 </div>
 
@@ -363,8 +367,10 @@
                             </form>
                         </div>
 
+                        <!-- TAB 2: MASTER TRAINING BARU (MENYIMPAN KE MASTER REPOSITORY) -->
                         <div class="tab-pane fade" id="repository-tab-pane" role="tabpanel">
-                            <form action="{{ url_for('add_training') }}" method="POST">
+                            <form action="{{ url_for('add_master_repository') }}" method="POST">
+                                <input type="hidden" name="redirect_to" value="dashboard">
                                 <div class="row g-2">
                                     <div class="col-md-6">
                                         <label class="form-label">Kode Training:</label>
@@ -380,7 +386,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">ID Fungsi:</label>
-                                        <input type="text" class="form-control form-control-sm" placeholder="F200">
+                                        <input type="text" name="id_fungsi" class="form-control form-control-sm" placeholder="F200">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Level Posisi:</label>
@@ -388,7 +394,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">ID Level Posisi:</label>
-                                        <input type="text" class="form-control form-control-sm" placeholder="L200">
+                                        <input type="text" name="id_level_posisi" class="form-control form-control-sm" placeholder="L200">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Level Training:</label>
@@ -399,7 +405,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">ID Level Training:</label>
-                                        <input type="text" class="form-control form-control-sm" placeholder="T200">
+                                        <input type="text" name="id_level_training" class="form-control form-control-sm" placeholder="T200">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Competency:</label>
@@ -407,12 +413,12 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">ID Competency Level:</label>
-                                        <input type="text" name="id_comp" class="form-control form-control-sm" placeholder="C200">
+                                        <input type="text" name="id_competency_level" class="form-control form-control-sm" placeholder="C200">
                                     </div>
                                 </div>
                                 <div class="text-end mt-4">
                                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn btn-success btn-sm">Simpan Data Baru</button>
+                                    <button type="submit" class="btn btn-success btn-sm">Simpan Ke Master Repository</button>
                                 </div>
                             </form>
                         </div>

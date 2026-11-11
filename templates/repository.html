@@ -3,224 +3,150 @@
 {% block title %}Master Repository Training - IPD System{% endblock %}
 
 {% block content %}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h5 class="fw-bold text-dark m-0">Master Repository Training</h5>
-            <small class="text-muted">Daftar Katalog Master Judul Training Perusahaan</small>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            {% if session['role'] == 'HCD' %}
-            <button class="btn btn-primary btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#addRepoModal">
-                <i class="bi bi-plus-circle-fill me-1"></i> Tambah Master Training Baru
-            </button>
-            {% endif %}
-            <span class="badge bg-primary px-3 py-2 text-uppercase">
-                <i class="bi bi-person-badge me-1"></i> {{ session['user_name'] }} ({{ session['role'] }})
-            </span>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h5 class="fw-bold text-dark m-0">Master Repository Training</h5>
+        <small class="text-muted">Daftar Katalog Master Judul Training Perusahaan</small>
     </div>
-
-    <div class="card border-0 shadow-sm p-3">
-        <div class="table-responsive">
-            <table id="repoTable" class="table table-bordered table-hover align-middle w-100">
-                <thead class="table-primary">
-                    <tr>
-                        <th>KODE TRAINING</th>
-                        <th>NAMA TRAINING</th>
-                        <th>FUNGSI</th>
-                        <th>ID FUNGSI</th>
-                        <th>LEVEL POSISI</th>
-                        <th>ID LEVEL POSISI</th>
-                        <th>LEVEL TRAINING</th>
-                        <th>ID LEVEL TRAINING</th>
-                        <th>COMPETENCY</th>
-                        <th>ID COMPETENCY LEVEL</th>
-                        {% if session['role'] == 'HCD' %}
-                        <th class="text-center bg-dark text-white">ACTION</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for r in master_data %}
-                    <tr>
-                        <td class="fw-bold text-primary">{{ r.kode_training }}</td>
-                        <td class="fw-semibold">{{ r.nama_training }}</td>
-                        <td>{{ r.fungsi }}</td>
-                        <td>{{ r.id_fungsi }}</td>
-                        <td>{{ r.level_posisi }}</td>
-                        <td>{{ r.id_level_posisi }}</td>
-                        <td>{{ r.level_training }}</td>
-                        <td>{{ r.id_level_training }}</td>
-                        <td>{{ r.competency }}</td>
-                        <td>{{ r.id_competency_level }}</td>
-                        {% if session['role'] == 'HCD' %}
-                        <td class="text-center">
-                            <button class="btn btn-warning btn-sm text-white py-0 px-2 me-1" title="Edit Master Training"
-                                    onclick="openEditRepoModal('{{ r.kode_training }}', '{{ r.nama_training }}', '{{ r.fungsi }}', '{{ r.id_fungsi }}', '{{ r.level_posisi }}', '{{ r.id_level_posisi }}', '{{ r.level_training }}', '{{ r.id_level_training }}', '{{ r.competency }}', '{{ r.id_competency_level }}')">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm py-0 px-2" title="Hapus Master Training"
-                                    onclick="confirmDeleteRepo('{{ r.kode_training }}', '{{ r.nama_training }}')">
-                                <i class="bi bi-trash-fill"></i> Hapus
-                            </button>
-                        </td>
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-primary btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#addRepoModal">
+            <i class="bi bi-plus-circle-fill me-1"></i> Tambah Master Training Baru
+        </button>
+        <span class="badge bg-primary px-3 py-2 text-uppercase">
+            <i class="bi bi-person-badge me-1"></i> {{ session.get('user_name', 'HCD SPECIALIST') }} ({{ session.get('role', 'HCD') }})
+        </span>
     </div>
+</div>
 
-    <!-- Modal Tambah Master Repository -->
-    <div class="modal fade" id="addRepoModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h6 class="modal-title fw-bold"><i class="bi bi-plus-circle-fill me-2"></i>Tambah Master Training Baru</h6>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="addRepoForm">
-                    <div class="modal-body">
-                        <div class="row g-2 mb-2">
-                            <div class="col-4">
-                                <label class="form-label m-0 fw-bold">Kode Training:</label>
-                                <input type="text" name="kode_training" class="form-control form-control-sm" placeholder="TR200" required>
-                            </div>
-                            <div class="col-8">
-                                <label class="form-label m-0 fw-bold">Nama Training:</label>
-                                <input type="text" name="nama_training" class="form-control form-control-sm" placeholder="PROSMAN" required>
-                            </div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show py-2 mb-2" role="alert" style="font-size: 11px;">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<!-- Top Controls -->
+<div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 11px;">
+    <div>
+        Tampilkan 
+        <select class="form-select form-select-sm d-inline-block w-auto py-0 fs-7" style="font-size: 11px;">
+            <option>10</option>
+            <option>25</option>
+            <option>50</option>
+        </select> entri
+    </div>
+    <div>
+        Cari Master Training: <input type="text" class="form-control form-control-sm d-inline-block w-auto py-0 fs-7" style="font-size: 11px;">
+    </div>
+</div>
+
+<!-- Master Repository Table -->
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle bg-white" style="font-size: 11px;">
+        <thead>
+            <tr class="table-primary text-center">
+                <th>KODE TRAINING <i class="bi bi-arrow-down-up"></i></th>
+                <th>NAMA TRAINING <i class="bi bi-arrow-down-up"></i></th>
+                <th>FUNGSI</th>
+                <th>ID FUNGSI</th>
+                <th>LEVEL POSISI</th>
+                <th>ID LEVEL POSISI</th>
+                <th>LEVEL TRAINING</th>
+                <th>ID LEVEL TRAINING</th>
+                <th>COMPETENCY</th>
+                <th>ID COMPETENCY LEVEL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in repositories %}
+            <tr>
+                <td class="fw-bold text-primary">{{ item.kode_training }}</td>
+                <td>{{ item.nama_training }}</td>
+                <td>{{ item.fungsi }}</td>
+                <td>{{ item.id_fungsi }}</td>
+                <td>{{ item.level_posisi }}</td>
+                <td>{{ item.id_level_posisi }}</td>
+                <td>{{ item.level_training }}</td>
+                <td>{{ item.id_level_training }}</td>
+                <td>{{ item.competency }}</td>
+                <td>{{ item.id_competency_level }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="10" class="text-center py-4">Belum ada data master training di repository.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL TAMBAH MASTER TRAINING BARU -->
+<div class="modal fade" id="addRepoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white py-2">
+                <h6 class="modal-title fw-bold"><i class="bi bi-plus-circle me-1"></i> Tambah Master Training Baru (Repository)</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3" style="font-size: 11px;">
+                <form action="{{ url_for('add_master_repository') }}" method="POST">
+                    <input type="hidden" name="redirect_to" value="repository">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Kode Training:</label>
+                            <input type="text" name="kode_training" class="form-control form-control-sm" placeholder="TR200" required>
                         </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label m-0">Fungsi:</label>
-                                <input type="text" name="fungsi" class="form-control form-control-sm" placeholder="MANAJEMEN">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label m-0">ID Fungsi:</label>
-                                <input type="text" name="id_fungsi" class="form-control form-control-sm" placeholder="F200">
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Training:</label>
+                            <input type="text" name="nama_training" class="form-control form-control-sm" placeholder="PROSMAN" required>
                         </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label m-0">Level Posisi:</label>
-                                <input type="text" name="level_posisi" class="form-control form-control-sm" placeholder="1">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label m-0">ID Level Posisi:</label>
-                                <input type="text" name="id_level_posisi" class="form-control form-control-sm" placeholder="L200">
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fungsi:</label>
+                            <input type="text" name="fungsi" class="form-control form-control-sm" placeholder="MANAJEMEN">
                         </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label m-0">Level Training:</label>
-                                <select name="level_training" class="form-select form-select-sm">
-                                    <option value="Teknis">Teknis</option>
-                                    <option value="Softskill">Softskill</option>
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label m-0">ID Level Training:</label>
-                                <input type="text" name="id_level_training" class="form-control form-control-sm" placeholder="T200">
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">ID Fungsi:</label>
+                            <input type="text" name="id_fungsi" class="form-control form-control-sm" placeholder="F200">
                         </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label m-0">Competency:</label>
-                                <input type="text" name="competency" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label m-0">ID Competency Level:</label>
-                                <input type="text" name="id_competency_level" class="form-control form-control-sm" placeholder="C200">
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Level Posisi:</label>
+                            <input type="text" name="level_posisi" class="form-control form-control-sm" placeholder="1">
                         </div>
-                        <div id="repo_alert_error" class="alert alert-danger py-1 px-2 mt-2 d-none"></div>
+                        <div class="col-md-6">
+                            <label class="form-label">ID Level Posisi:</label>
+                            <input type="text" name="id_level_posisi" class="form-control form-control-sm" placeholder="L200">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Level Training:</label>
+                            <select name="level_training" class="form-select form-select-sm">
+                                <option value="Teknis">Teknis</option>
+                                <option value="Softskill">Softskill</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">ID Level Training:</label>
+                            <input type="text" name="id_level_training" class="form-control form-control-sm" placeholder="T200">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Competency:</label>
+                            <input type="text" name="competency" class="form-control form-control-sm" placeholder="BIAR JAGO">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">ID Competency Level:</label>
+                            <input type="text" name="id_competency_level" class="form-control form-control-sm" placeholder="C200">
+                        </div>
                     </div>
-                    <div class="modal-footer py-1">
+                    <div class="text-end mt-4">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Simpan Ke Master Repository</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Simpan Ke Repository</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-    <!-- Modal Edit Master Repository -->
-    <div class="modal fade" id="editRepoModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h6 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Edit Master Training</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="editRepoForm">
-                    <div class="modal-body">
-                        <div class="row g-2 mb-2">
-                            <div class="col-4">
-                                <label class="form-label m-0 fw-bold">Kode Training:</label>
-                                <input type="text" id="edit_kode_training" name="kode_training" class="form-control form-control-sm bg-light" readonly>
-                            </div>
-                            <div class="col-8">
-                                <label class="form-label m-0 fw-bold">Nama Training:</label>
-                                <input type="text" id="edit_nama_training" name="nama_training" class="form-control form-control-sm" required>
-                            </div>
-                        </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label m-0">Fungsi:</label>
-                                <input type="text" id="edit_fungsi" name="fungsi" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label m-0">ID Fungsi:</label>
-                                <input type="text" id="edit_id_fungsi" name="id_fungsi" class="form-control form-control-sm">
-                            </div>
-                        </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label m-0">Level Posisi:</label>
-                                <input type="text" id="edit_level_posisi" name="level_posisi" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label m-0">ID Level Posisi:</label>
-                                <input type="text" id="edit_id_level_posisi" name="id_level_posisi" class="form-control form-control-sm">
-                            </div>
-                        </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label m-0">Level Training:</label>
-                                <select id="edit_level_training" name="level_training" class="form-select form-select-sm">
-                                    <option value="Teknis">Teknis</option>
-                                    <option value="Softskill">Softskill</option>
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label m-0">ID Level Training:</label>
-                                <input type="text" id="edit_id_level_training" name="id_level_training" class="form-control form-control-sm">
-                            </div>
-                        </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label m-0">Competency:</label>
-                                <input type="text" id="edit_competency" name="competency" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label m-0">ID Competency Level:</label>
-                                <input type="text" id="edit_id_competency_level" name="id_competency_level" class="form-control form-control-sm">
-                            </div>
-                        </div>
-                        <div id="edit_repo_alert_error" class="alert alert-danger py-1 px-2 mt-2 d-none"></div>
-                    </div>
-                    <div class="modal-footer py-1">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-warning text-white btn-sm">Simpan Perubahan Master</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/repository.js') }}"></script>
+</div>
 {% endblock %}
