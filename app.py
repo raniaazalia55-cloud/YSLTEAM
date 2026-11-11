@@ -82,14 +82,20 @@ def login():
                 if check_password_hash(stored_pwd, password) or stored_pwd == password or password == 'hcd':
                     session['user_id'] = user.get('id')
                     session['username'] = user.get('username')
-                    session['user_name'] = user.get('username')
+                    session['user_name'] = "Haikal Kent" if username.lower() == 'haikal' else user.get('username')
                     # Set Role: 'HC ADMIN' atau 'USER'
                     session['role'] = 'HC ADMIN' if selected_role in ['hc admin', 'staf hcd', 'admin', 'hcd'] else 'USER'
-                    return redirect(url_for('dashboard'))
+                    return redirect(url_for('home'))
 
         flash('Invalid Username or Password', 'danger')
 
     return render_template('login.html')
+
+@app.route('/home')
+def home():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template('home.html', username=session.get('user_name', 'Haikal Kent'))
 
 @app.route('/dashboard')
 def dashboard():
@@ -118,7 +124,7 @@ def dashboard():
             cursor.close()
             conn.close()
 
-    return render_template('dashboard.html', username=session.get('username'), trainings=trainings, repositories=repositories, feedbacks=feedbacks)
+    return render_template('dashboard.html', username=session.get('user_name', 'Haikal Kent'), trainings=trainings, repositories=repositories, feedbacks=feedbacks)
 
 @app.route('/submit_feedback', methods=['POST'])
 def submit_feedback():
@@ -129,7 +135,7 @@ def submit_feedback():
     kode_training = request.form.get('kode_training')
     nama_training = request.form.get('nama_training')
     batch = request.form.get('batch')
-    nama_peserta = request.form.get('nama_peserta', session.get('username'))
+    nama_peserta = request.form.get('nama_peserta', session.get('user_name', 'Haikal Kent'))
     rating = request.form.get('rating', 5)
     materi_rating = request.form.get('materi_rating', 5)
     fasilitas_rating = request.form.get('fasilitas_rating', 5)
@@ -176,7 +182,7 @@ def repository():
             cursor.close()
             conn.close()
 
-    return render_template('repository.html', username=session.get('username'), repositories=repositories)
+    return render_template('repository.html', username=session.get('user_name', 'Haikal Kent'), repositories=repositories)
 
 @app.route('/add_master_repository', methods=['POST'])
 def add_master_repository():
