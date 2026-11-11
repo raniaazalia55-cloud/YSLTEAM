@@ -26,21 +26,21 @@
         /* Outer Card Wrapper */
         .login-card {
             width: 100%;
-            max-width: 900px;
+            max-width: 920px;
             background: #ffffff;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             display: flex;
-            min-height: 520px;
+            min-height: 540px;
         }
 
         /* Banner Kiri Nuansa Hijau KPP Mining */
         .banner-side {
-            flex: 1;
+            flex: 1.1;
             background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
             color: #ffffff;
-            padding: 40px;
+            padding: 45px 40px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -63,21 +63,26 @@
             z-index: 2;
         }
 
-        /* Container Logo KPP Mining Besar */
+        /* Container & Logo KPP Mining Lebar Seukuran Welcome */
         .kpp-logo-banner-wrapper {
             background: rgba(255, 255, 255, 0.98);
-            padding: 12px 22px;
+            padding: 14px 20px;
             border-radius: 14px;
-            display: inline-block;
+            display: block;
+            width: 100%; /* Lebar Penuh Menyesuaikan Container */
+            max-width: 320px; /* Lebar Seukuran Tulisan WELCOME TO IPD */
             margin-bottom: 25px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            text-align: center;
         }
 
         .kpp-logo-large {
-            height: 68px;
-            width: auto;
+            width: 100%;
+            height: auto;
+            max-height: 85px; /* Logo Lebih Tinggi dan Lebar */
             object-fit: contain;
             display: block;
+            margin: 0 auto;
         }
 
         .banner-content h1 {
@@ -248,9 +253,9 @@
             <div class="circle-shape circle-3"></div>
             
             <div class="banner-content">
-                <!-- Logo KPP Mining -->
+                <!-- Logo KPP Mining Lebih Lebar Seukuran Welcome -->
                 <div class="kpp-logo-banner-wrapper">
-                    <img src="{{ url_for('static', filename='kpp_logo.png') }}" alt="KPP Mining Logo" class="kpp-logo-large" onerror="this.src='https://via.placeholder.com/200x70?text=KPP+MINING'">
+                    <img src="{{ url_for('static', filename='kpp_logo.png') }}" alt="KPP Mining Logo" class="kpp-logo-large" onerror="this.src='https://via.placeholder.com/300x85?text=KPP+MINING'">
                 </div>
 
                 <h1>WELCOME TO IPD</h1>
