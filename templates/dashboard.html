@@ -13,16 +13,16 @@
         
         .sidebar { width: 220px; position: fixed; top: 0; bottom: 0; left: 0; background-color: #ffffff; border-right: 1px solid #e5e9f0; z-index: 100; padding: 15px 10px; display: flex; flex-direction: column; justify-content: space-between; }
         .sidebar-brand { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 20px; }
-        .sidebar-brand .text-i { color: #0d6efd; }
-        .sidebar-brand .text-p { color: #e63946; }
-        .sidebar-brand .text-d { color: #ffb703; }
+        .sidebar-brand .text-i { color: #1b5e20; }
+        .sidebar-brand .text-p { color: #2e7d32; }
+        .sidebar-brand .text-d { color: #4caf50; }
         
         .sidebar-menu { list-style: none; padding: 0; margin: 0; }
         .sidebar-menu li { margin-bottom: 4px; }
         .sidebar-menu li a { display: flex; align-items: center; padding: 8px 12px; color: #495057; text-decoration: none; font-size: 11px; font-weight: 600; border-radius: 6px; }
-        .sidebar-menu li a i { font-size: 15px; margin-right: 10px; color: #0d6efd; width: 20px; text-align: center; }
-        .sidebar-menu li a:hover { background-color: #f8f9fa; color: #0d6efd; }
-        .sidebar-menu li a.active { background-color: #e7f1ff; color: #0d6efd; font-weight: 700; }
+        .sidebar-menu li a i { font-size: 15px; margin-right: 10px; color: #2e7d32; width: 20px; text-align: center; }
+        .sidebar-menu li a:hover { background-color: #e8f5e9; color: #1b5e20; }
+        .sidebar-menu li a.active { background-color: #c8e6c9; color: #1b5e20; font-weight: 700; }
         
         .btn-logout-sidebar { width: 100%; border: 1px solid #dc3545; color: #dc3545; background: #fff; padding: 6px; border-radius: 6px; font-weight: 600; font-size: 11px; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-logout-sidebar:hover { background-color: #dc3545; color: #fff; }
@@ -30,10 +30,10 @@
         .main-container { margin-left: 220px; padding: 15px 20px; }
         
         .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .title-text { font-size: 16px; font-weight: bold; color: #333; }
+        .title-text { font-size: 16px; font-weight: bold; color: #1b5e20; }
         .sub-title { font-size: 10px; color: #666; }
         
-        .simulation-banner { background-color: #fff3cd; color: #856404; padding: 6px 12px; font-size: 10px; border-radius: 4px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .simulation-banner { background-color: #e8f5e9; color: #1b5e20; padding: 6px 12px; font-size: 10px; border-radius: 4px; border: 1px solid #c8e6c9; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         
         .table-custom { font-size: 10px; border-collapse: collapse; background: white; }
         .table-custom th, .table-custom td { padding: 6px 8px; vertical-align: middle; border: 1px solid #dee2e6; }
@@ -51,6 +51,7 @@
 
         .btn-action-edit { background-color: #ffc107; border: none; color: #000; font-size: 9px; padding: 3px 6px; border-radius: 3px; display: block; width: 100%; margin-bottom: 3px; font-weight: 500; text-align: center; text-decoration: none; }
         .btn-action-delete { background-color: #dc3545; border: none; color: #fff; font-size: 9px; padding: 3px 6px; border-radius: 3px; display: block; width: 100%; text-align: center; }
+        .btn-action-feedback { background-color: #198754; border: none; color: #fff; font-size: 9px; padding: 3px 6px; border-radius: 3px; display: block; width: 100%; text-align: center; text-decoration: none; }
         
         .modal-header-yellow { background-color: #ffc107; color: #000; font-weight: bold; }
         .modal-header-green { background-color: #198754; color: white; }
@@ -92,17 +93,16 @@
         <div class="header-section">
             <div>
                 <span class="title-text">Integrated Database Training</span>
-                <div class="sub-title">Integrasi Repository Training, COE Schedule, & Evaluasi Planning</div>
+                <div class="sub-title">Integrasi Repository Training, COE Schedule, Evaluasi Planning & Feedback Karyawan</div>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <!-- HANYA STAF HCD YANG BISA MANAMBAH BATCH COE -->
-                {% if session.get('role') == 'STAF HCD' %}
-                <button class="btn btn-sm btn-primary py-1" data-bs-toggle="modal" data-bs-target="#addTrainingModal" style="font-size: 10px;">
+                {% if session.get('role') == 'HC ADMIN' %}
+                <button class="btn btn-sm btn-success py-1" data-bs-toggle="modal" data-bs-target="#addTrainingModal" style="font-size: 10px;">
                     <i class="bi bi-plus-circle me-1"></i> Penjadwalan Batch COE Baru
                 </button>
                 {% endif %}
-                <span class="badge {% if session.get('role') == 'STAF HCD' %}bg-primary{% else %}bg-secondary{% endif %} px-2 py-1" style="font-size: 10px;">
-                    <i class="bi bi-person-fill"></i> {{ session.get('role', 'STAF') }}
+                <span class="badge {% if session.get('role') == 'HC ADMIN' %}bg-success{% else %}bg-secondary{% endif %} px-2 py-1" style="font-size: 10px;">
+                    <i class="bi bi-person-fill"></i> {{ session.get('role', 'USER') }}
                 </span>
             </div>
         </div>
@@ -110,7 +110,7 @@
         <!-- Simulation Banner -->
         <div class="simulation-banner">
             <div><i class="bi bi-info-circle-fill me-1"></i> <b>MODE SIMULASI:</b> Data yang ditampilkan adalah dummy data terenkripsi untuk pengujian prototipe IPD System (Tahun Operasional: 2026).</div>
-            <span class="badge bg-warning text-dark" style="font-size: 9px;">Data Simulasi</span>
+            <span class="badge bg-success text-white" style="font-size: 9px;">Data Simulasi</span>
         </div>
 
         <!-- Alert Notification -->
@@ -125,36 +125,19 @@
           {% endif %}
         {% endwith %}
 
-        <!-- Top Table Controls -->
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <div>
-                Tampilkan 
-                <select class="form-select form-select-sm d-inline-block w-auto py-0 fs-7" style="font-size: 10px;">
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
-                </select> entri
-            </div>
-            <div>
-                Cari Global: <input type="text" class="form-control form-control-sm d-inline-block w-auto py-0 fs-7" style="font-size: 10px;">
-            </div>
-        </div>
-
         <!-- Main Data Table -->
-        <div class="table-responsive">
+        <div class="table-responsive mb-4">
             <table class="table table-custom table-bordered table-hover align-middle">
                 <thead>
                     <tr>
                         <th colspan="8" class="header-repo">MASTER REPOSITORY TRAINING</th>
-                        <th colspan="{% if session.get('role') == 'STAF HCD' %}8{% else %}7{% endif %}" class="header-coe">COE SCHEDULE & REALISASI (2026)</th>
+                        <th colspan="{% if session.get('role') == 'HC ADMIN' %}8{% else %}7{% endif %}" class="header-coe">COE SCHEDULE & REALISASI (2026)</th>
                         <th colspan="2" class="header-eval">EVALUASI PLANNING</th>
-                        {% if session.get('role') == 'STAF HCD' %}
                         <th rowspan="2" class="header-action" style="width: 95px;">ACTION</th>
-                        {% endif %}
                     </tr>
                     <tr class="bg-light text-center" style="font-size: 9px;">
-                        <th>KODE <i class="bi bi-arrow-down-up"></i></th>
-                        <th>FUNGSI <br><select class="form-select form-select-sm p-0 fs-8" style="font-size: 9px;"><option>- Semua -</option></select></th>
+                        <th>KODE</th>
+                        <th>FUNGSI</th>
                         <th>LEVEL POSISI</th>
                         <th>LEVEL TRAINING</th>
                         <th>NAMA TRAINING</th>
@@ -168,17 +151,17 @@
                         <th>REALISASI SELESAI</th>
                         <th>PARTISIPAN</th>
                         <th>PIC</th>
-                        {% if session.get('role') == 'STAF HCD' %}
+                        {% if session.get('role') == 'HC ADMIN' %}
                         <th class="bg-warning text-dark">BIAYA (IDR)</th>
                         {% endif %}
-                        <th>STATUS PLANNING <br><select class="form-select form-select-sm p-0 fs-8" style="font-size: 9px;"><option>- Semua -</option></select></th>
+                        <th>STATUS PLANNING</th>
                         <th>HASIL EVALUASI</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in trainings %}
                     <tr>
-                        <td class="fw-bold text-primary">{{ item.kode_training or item.KODE or '-' }}</td>
+                        <td class="fw-bold text-success">{{ item.kode_training or item.KODE or '-' }}</td>
                         <td>{{ item.fungsi or item.FUNGSI or '-' }}</td>
                         <td>{{ item.level_posisi or item.LEVEL_POSISI or '-' }}</td>
                         <td>{{ item.level_training or item.LEVEL_TRAINING or '-' }}</td>
@@ -198,8 +181,7 @@
                         <td class="text-center">{{ item.partisipan or 0 }}</td>
                         <td>{{ item.PIC or item.pic or '-' }}</td>
                         
-                        <!-- TABEL BIAYA HANYA MUNCUL UNTUK STAF HCD -->
-                        {% if session.get('role') == 'STAF HCD' %}
+                        {% if session.get('role') == 'HC ADMIN' %}
                         <td class="fw-bold text-end">Rp {{ "{:,.0f}".format(item.biaya or 0) }}</td>
                         {% endif %}
 
@@ -212,19 +194,98 @@
                             </span>
                         </td>
 
-                        <!-- ACTION (EDIT/HAPUS) HANYA UNTUK STAF HCD -->
-                        {% if session.get('role') == 'STAF HCD' %}
                         <td class="text-center">
+                            <!-- TOMBOL BERI FEEDBACK DIBUKA UNTUK USER MAUPUN HC ADMIN -->
+                            <button class="btn-action-feedback mb-1" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ item.id }}">
+                                <i class="bi bi-chat-left-text-fill"></i> Feedback
+                            </button>
+
+                            {% if session.get('role') == 'HC ADMIN' %}
                             <button class="btn-action-edit" data-bs-toggle="modal" data-bs-target="#editModal{{ item.id }}">
-                                <i class="bi bi-pencil-square"></i> Edit / Reschedule
+                                <i class="bi bi-pencil-square"></i> Edit
                             </button>
                             <form action="{{ url_for('delete_training', id=item.id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?');">
                                 <button type="submit" class="btn-action-delete">
                                     <i class="bi bi-trash"></i> Hapus
                                 </button>
                             </form>
+                            {% endif %}
 
-                            <!-- MODAL EDIT & RESCHEDULE FOR STAF HCD -->
+                            <!-- MODAL FORM FEEDBACK TRAINING -->
+                            <div class="modal fade text-start" id="feedbackModal{{ item.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+                                    <div class="modal-content">
+                                        <form action="{{ url_for('submit_feedback') }}" method="POST">
+                                            <input type="hidden" name="training_id" value="{{ item.id }}">
+                                            <input type="hidden" name="kode_training" value="{{ item.kode_training or item.KODE }}">
+                                            <input type="hidden" name="nama_training" value="{{ item.nama_training or item.nama or item.NAMA_TRAINING }}">
+                                            <input type="hidden" name="batch" value="{{ item.BATCH or item.batch }}">
+
+                                            <div class="modal-header modal-header-green py-2 px-3 d-flex justify-content-between align-items-center">
+                                                <h6 class="modal-title fw-bold fs-7 mb-0 text-white">
+                                                    <i class="bi bi-star-fill me-1"></i> Form Feedback Evaluation Training
+                                                </h6>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            
+                                            <div class="modal-body p-3" style="font-size: 11px;">
+                                                <div class="mb-3 p-2 bg-light rounded border">
+                                                    <div class="fw-bold text-success">{{ item.kode_training or item.KODE }} - {{ item.nama_training or item.nama or item.NAMA_TRAINING }}</div>
+                                                    <small class="text-muted">Batch: {{ item.BATCH or item.batch or 'B001' }}</small>
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <label class="form-label mb-1 fw-bold">Nama Peserta Evaluator:</label>
+                                                    <input type="text" name="nama_peserta" class="form-control form-control-sm" value="{{ session.get('username') }}" required>
+                                                </div>
+
+                                                <div class="row g-2 mb-2">
+                                                    <div class="col-4">
+                                                        <label class="form-label mb-1">Rating Instruktur:</label>
+                                                        <select name="rating" class="form-select form-select-sm">
+                                                            <option value="5">5 - Sangat Baik</option>
+                                                            <option value="4">4 - Baik</option>
+                                                            <option value="3">3 - Cukup</option>
+                                                            <option value="2">2 - Kurang</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <label class="form-label mb-1">Rating Materi:</label>
+                                                        <select name="materi_rating" class="form-select form-select-sm">
+                                                            <option value="5">5 - Sangat Baik</option>
+                                                            <option value="4">4 - Baik</option>
+                                                            <option value="3">3 - Cukup</option>
+                                                            <option value="2">2 - Kurang</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <label class="form-label mb-1">Rating Fasilitas:</label>
+                                                        <select name="fasilitas_rating" class="form-select form-select-sm">
+                                                            <option value="5">5 - Sangat Baik</option>
+                                                            <option value="4">4 - Baik</option>
+                                                            <option value="3">3 - Cukup</option>
+                                                            <option value="2">2 - Kurang</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <label class="form-label mb-1 fw-bold">Komentar & Saran Perbaikan:</label>
+                                                    <textarea name="komentar" class="form-control form-control-sm" rows="3" placeholder="Tuliskan pengalaman & evaluasi setelah mengikuti training ini..."></textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-footer py-2 px-3 bg-light">
+                                                <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-success btn-sm px-3">Kirim Feedback</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MODAL EDIT FOR HC ADMIN -->
+                            {% if session.get('role') == 'HC ADMIN' %}
                             <div class="modal fade text-start" id="editModal{{ item.id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
                                     <div class="modal-content">
@@ -237,13 +298,6 @@
                                             </div>
                                             
                                             <div class="modal-body p-3" style="font-size: 11px;">
-                                                <div class="mb-3">
-                                                    <label class="form-label fw-bold text-secondary mb-0" style="font-size: 10px;">Training / Batch:</label>
-                                                    <div class="fw-bold text-primary" style="font-size: 11px;">
-                                                        {{ item.kode_training or item.KODE }} - {{ item.nama_training or item.nama or item.NAMA_TRAINING }} ({{ item.BATCH or item.batch or 'B001' }})
-                                                    </div>
-                                                </div>
-
                                                 <div class="row g-2 mb-2">
                                                     <div class="col-6">
                                                         <label class="form-label mb-1 text-muted">Rencana Mulai:</label>
@@ -278,21 +332,21 @@
                                                     </div>
                                                     <div class="col-6">
                                                         <label class="form-label mb-1 fw-bold text-dark">Biaya Training (IDR):</label>
-                                                        <input type="number" name="biaya" class="form-control form-control-sm" value="{{ item.biaya or 0 }}" placeholder="5000000">
+                                                        <input type="number" name="biaya" class="form-control form-control-sm" value="{{ item.biaya or 0 }}">
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="modal-footer py-2 px-3 bg-light">
                                                 <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Batal</button>
-                                                <button type="submit" class="btn btn-primary btn-sm px-3">Simpan Perubahan</button>
+                                                <button type="submit" class="btn btn-success btn-sm px-3">Simpan Perubahan</button>
                                             </div>
                                         </form>
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
                         </td>
-                        {% endif %}
                     </tr>
                     {% else %}
                     <tr>
@@ -302,10 +356,54 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- TABEL REKAPITULASI FEEDBACK TRAINING (TAMPIL UNTUK USER MAUPUN HC ADMIN) -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-chat-square-quote-fill me-2"></i> Rekapitulasi Hasil Feedback & Evaluasi Training</h6>
+                <span class="badge bg-white text-success fw-bold">{{ feedbacks|length }} Respon Masuk</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle mb-0" style="font-size: 10px;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>NAMA PESERTA</th>
+                                <th>KODE & NAMA TRAINING</th>
+                                <th>BATCH</th>
+                                <th class="text-center">INST RATING</th>
+                                <th class="text-center">MATERI RATING</th>
+                                <th class="text-center">FASILITAS RATING</th>
+                                <th>KOMENTAR & EVALUASI</th>
+                                <th>TANGGAL SUBMIT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fb in feedbacks %}
+                            <tr>
+                                <td class="fw-bold text-dark"><i class="bi bi-person-circle me-1 text-success"></i> {{ fb.nama_peserta }}</td>
+                                <td><b>{{ fb.kode_training }}</b> - {{ fb.nama_training }}</td>
+                                <td><span class="badge bg-secondary">{{ fb.batch }}</span></td>
+                                <td class="text-center text-warning fw-bold"><i class="bi bi-star-fill me-1"></i>{{ fb.rating }}/5</td>
+                                <td class="text-center text-warning fw-bold"><i class="bi bi-star-fill me-1"></i>{{ fb.materi_rating }}/5</td>
+                                <td class="text-center text-warning fw-bold"><i class="bi bi-star-fill me-1"></i>{{ fb.fasilitas_rating }}/5</td>
+                                <td><em>"{{ fb.komentar or '-' }}"</em></td>
+                                <td class="text-muted">{{ fb.tanggal_submit }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center py-3 text-muted">Belum ada feedback yang dikirimkan oleh peserta.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- MODAL PENJADWALAN BATCH COE BARU (DILENGKAPI INPUT BIAYA UNTUK STAF HCD) -->
-    {% if session.get('role') == 'STAF HCD' %}
+    <!-- MODAL PENJADWALAN BATCH COE BARU (HANYA UNTUK HC ADMIN) -->
+    {% if session.get('role') == 'HC ADMIN' %}
     <div class="modal fade" id="addTrainingModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-md">
             <div class="modal-content">

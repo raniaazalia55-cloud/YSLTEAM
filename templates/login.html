@@ -12,8 +12,8 @@
     <style>
         * { box-sizing: border-box; }
         body {
-            background-color: #0d47a1;
-            background: linear-gradient(135deg, #0a357a 0%, #1565c0 100%);
+            background-color: #0b4619;
+            background: linear-gradient(135deg, #062b0f 0%, #15732b 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -29,16 +29,16 @@
             max-width: 900px;
             background: #ffffff;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             display: flex;
             min-height: 520px;
         }
 
-        /* Banner Kiri dengan Lingkaran Gradient */
+        /* Banner Kiri Nuansa Hijau KPP Mining */
         .banner-side {
             flex: 1;
-            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
             color: #ffffff;
             padding: 40px;
             display: flex;
@@ -48,7 +48,7 @@
             overflow: hidden;
         }
 
-        /* Geometri Lingkaran Abstrak */
+        /* Geometri Lingkaran Abstrak Hijau */
         .circle-shape {
             position: absolute;
             background: rgba(255, 255, 255, 0.12);
@@ -63,9 +63,9 @@
             z-index: 2;
         }
 
-        /* Container Logo KPP Mining Besar DI ATAS WELCOME */
+        /* Container Logo KPP Mining Besar */
         .kpp-logo-banner-wrapper {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             padding: 12px 22px;
             border-radius: 14px;
             display: inline-block;
@@ -112,14 +112,14 @@
         .form-header h2 {
             font-size: 28px;
             font-weight: 700;
-            color: #212529;
+            color: #1b5e20;
             margin: 0;
         }
 
-        /* Selector Role Toggle */
+        /* Selector Role Toggle Hijau */
         .role-selector {
             display: flex;
-            background: #f1f5f9;
+            background: #e8f5e9;
             padding: 4px;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -135,7 +135,7 @@
             padding: 8px 12px;
             font-size: 12px;
             font-weight: 600;
-            color: #64748b;
+            color: #2e7d32;
             cursor: pointer;
             border-radius: 8px;
             transition: all 0.2s ease;
@@ -143,8 +143,8 @@
 
         .role-selector input[type="radio"]:checked + label {
             background: #ffffff;
-            color: #0d6efd;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            color: #1b5e20;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         /* Custom Input Styling */
@@ -158,7 +158,7 @@
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #6c757d;
+            color: #2e7d32;
             font-size: 16px;
             z-index: 4;
         }
@@ -167,7 +167,7 @@
             width: 100%;
             padding: 12px 15px 12px 42px;
             background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
+            border: 1px solid #c8e6c9;
             border-radius: 10px;
             font-size: 13px;
             transition: all 0.2s;
@@ -175,8 +175,8 @@
 
         .form-control-custom:focus {
             background-color: #ffffff;
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+            border-color: #2e7d32;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
             outline: none;
         }
 
@@ -187,7 +187,7 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #0d6efd;
+            color: #2e7d32;
             font-size: 11px;
             font-weight: 700;
             cursor: pointer;
@@ -202,14 +202,13 @@
             margin-bottom: 25px;
         }
 
-        .form-check-input {
-            width: 15px;
-            height: 15px;
-            margin-top: 1px;
+        .form-check-input:checked {
+            background-color: #2e7d32;
+            border-color: #2e7d32;
         }
 
         .forgot-link {
-            color: #0d6efd;
+            color: #2e7d32;
             text-decoration: none;
             font-weight: 600;
         }
@@ -218,7 +217,7 @@
         .btn-signin {
             width: 100%;
             padding: 12px;
-            background-color: #0f3d7a;
+            background-color: #1b5e20;
             color: #ffffff;
             border: none;
             border-radius: 10px;
@@ -228,7 +227,7 @@
         }
 
         .btn-signin:hover {
-            background-color: #0a2952;
+            background-color: #0d3b11;
         }
 
         @media (max-width: 768px) {
@@ -242,14 +241,14 @@
 <body>
 
     <div class="login-card">
-        <!-- Banner Kiri -->
+        <!-- Banner Kiri Hijau KPP Mining -->
         <div class="banner-side">
             <div class="circle-shape circle-1"></div>
             <div class="circle-shape circle-2"></div>
             <div class="circle-shape circle-3"></div>
             
             <div class="banner-content">
-                <!-- Logo KPP Mining Besar DI ATAS Tulisan WELCOME -->
+                <!-- Logo KPP Mining -->
                 <div class="kpp-logo-banner-wrapper">
                     <img src="{{ url_for('static', filename='kpp_logo.png') }}" alt="KPP Mining Logo" class="kpp-logo-large" onerror="this.src='https://via.placeholder.com/200x70?text=KPP+MINING'">
                 </div>
@@ -266,7 +265,7 @@
                 <h2>Sign in</h2>
             </div>
 
-            <!-- Flash Alert jika salah login -->
+            <!-- Flash Alert -->
             {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %}
                 {% for category, message in messages %}
@@ -278,13 +277,13 @@
             {% endwith %}
 
             <form action="{{ url_for('login') }}" method="POST">
-                <!-- Selector Role Baru: Staf vs Staf HCD -->
+                <!-- Selector Role: User vs HC Admin -->
                 <div class="role-selector">
-                    <input type="radio" name="role" id="role_staf" value="staf" checked>
-                    <label for="role_staf"><i class="bi bi-person me-1"></i> Staf</label>
+                    <input type="radio" name="role" id="role_user" value="user" checked>
+                    <label for="role_user"><i class="bi bi-person me-1"></i> User</label>
                     
-                    <input type="radio" name="role" id="role_staf_hcd" value="staf hcd">
-                    <label for="role_staf_hcd"><i class="bi bi-person-badge-fill me-1"></i> Staf HCD</label>
+                    <input type="radio" name="role" id="role_hc_admin" value="hc admin">
+                    <label for="role_hc_admin"><i class="bi bi-person-badge-fill me-1"></i> HC Admin</label>
                 </div>
 
                 <!-- Username Input -->

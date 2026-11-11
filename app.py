@@ -22,7 +22,7 @@ def get_db_connection():
         return None
 
 def init_tables(conn):
-    """Memastikan tabel master_repository & kolom biaya di list_training siap"""
+    """Memastikan tabel master_repository, feedback_training, & kolom biaya siap"""
     cursor = conn.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS master_repository (
@@ -39,7 +39,21 @@ def init_tables(conn):
             id_competency_level VARCHAR(50) DEFAULT '-'
         )
     """)
-    # Tambah kolom biaya jika belum ada di list_training
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS feedback_training (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            training_id INT NOT NULL,
+            kode_training VARCHAR(50),
+            nama_training VARCHAR(255),
+            batch VARCHAR(50),
+            nama_peserta VARCHAR(100),
+            rating INT DEFAULT 5,
+            materi_rating INT DEFAULT 5,
+            fasilitas_rating INT DEFAULT 5,
+            komentar TEXT,
+            tanggal_submit TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
     try:
         cursor.execute("ALTER TABLE list_training ADD COLUMN biaya DECIMAL(15,2) DEFAULT 0.00")
     except Exception:
@@ -53,7 +67,7 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        selected_role = request.form.get('role', 'staf').lower()
+        selected_role = request.form.get('role', 'user').lower()
 
         conn = get_db_connection()
         if conn:
@@ -69,8 +83,8 @@ def login():
                     session['user_id'] = user.get('id')
                     session['username'] = user.get('username')
                     session['user_name'] = user.get('username')
-                    # Set Role: 'STAF HCD' atau 'STAF'
-                    session['role'] = 'STAF HCD' if selected_role in ['staf hcd', 'hcd', 'manager'] else 'STAF'
+                    # Set Role: 'HC ADMIN' atau 'USER'
+                    session['role'] = 'HC ADMIN' if selected_role in ['hc admin', 'staf hcd', 'admin', 'hcd'] else 'USER'
                     return redirect(url_for('dashboard'))
 
         flash('Invalid Username or Password', 'danger')
@@ -84,6 +98,7 @@ def dashboard():
     
     trainings = []
     repositories = []
+    feedbacks = []
     conn = get_db_connection()
     if conn:
         init_tables(conn)
@@ -94,13 +109,53 @@ def dashboard():
             
             cursor.execute("SELECT * FROM master_repository ORDER BY kode_training ASC")
             repositories = cursor.fetchall()
+
+            cursor.execute("SELECT * FROM feedback_training ORDER BY id DESC")
+            feedbacks = cursor.fetchall()
         except Exception as e:
             print(f"Error fetching data: {e}")
         finally:
             cursor.close()
             conn.close()
 
-    return render_template('dashboard.html', username=session.get('username'), trainings=trainings, repositories=repositories)
+    return render_template('dashboard.html', username=session.get('username'), trainings=trainings, repositories=repositories, feedbacks=feedbacks)
+
+@app.route('/submit_feedback', methods=['POST'])
+def submit_feedback():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    training_id = request.form.get('training_id')
+    kode_training = request.form.get('kode_training')
+    nama_training = request.form.get('nama_training')
+    batch = request.form.get('batch')
+    nama_peserta = request.form.get('nama_peserta', session.get('username'))
+    rating = request.form.get('rating', 5)
+    materi_rating = request.form.get('materi_rating', 5)
+    fasilitas_rating = request.form.get('fasilitas_rating', 5)
+    komentar = request.form.get('komentar', '')
+
+    conn = get_db_connection()
+    if conn:
+        init_tables(conn)
+        cursor = conn.cursor()
+        try:
+            sql = """
+                INSERT INTO feedback_training 
+                (training_id, kode_training, nama_training, batch, nama_peserta, rating, materi_rating, fasilitas_rating, komentar)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(sql, (training_id, kode_training, nama_training, batch, nama_peserta, rating, materi_rating, fasilitas_rating, komentar))
+            conn.commit()
+            flash('Terima kasih! Feedback training berhasil dikirim.', 'success')
+        except Exception as e:
+            conn.rollback()
+            flash(f'Gagal mengirim feedback: {str(e)}', 'danger')
+        finally:
+            cursor.close()
+            conn.close()
+
+    return redirect(url_for('dashboard'))
 
 @app.route('/repository')
 def repository():
@@ -125,8 +180,8 @@ def repository():
 
 @app.route('/add_master_repository', methods=['POST'])
 def add_master_repository():
-    if 'username' not in session or session.get('role') != 'STAF HCD':
-        flash('Akses ditolak! Hanya Staf HCD yang dapat menambah Master Repository.', 'danger')
+    if 'username' not in session or session.get('role') != 'HC ADMIN':
+        flash('Akses ditolak! Hanya HC Admin yang dapat menambah Master Repository.', 'danger')
         return redirect(url_for('repository'))
     
     kode = request.form.get('kode_training', '').strip()
@@ -171,8 +226,8 @@ def add_master_repository():
 
 @app.route('/add_training', methods=['POST'])
 def add_training():
-    if 'username' not in session or session.get('role') != 'STAF HCD':
-        flash('Akses ditolak! Hanya Staf HCD yang dapat menambah Batch COE.', 'danger')
+    if 'username' not in session or session.get('role') != 'HC ADMIN':
+        flash('Akses ditolak! Hanya HC Admin yang dapat menambah Batch COE.', 'danger')
         return redirect(url_for('dashboard'))
     
     kode = request.form.get('kode_training', '').strip()
@@ -234,8 +289,8 @@ def add_training():
 
 @app.route('/edit_training/<int:id>', methods=['POST'])
 def edit_training(id):
-    if 'username' not in session or session.get('role') != 'STAF HCD':
-        flash('Akses ditolak! Hanya Staf HCD yang dapat mengubah jadwal.', 'danger')
+    if 'username' not in session or session.get('role') != 'HC ADMIN':
+        flash('Akses ditolak! Hanya HC Admin yang dapat mengubah jadwal.', 'danger')
         return redirect(url_for('dashboard'))
     
     rencana_mulai = request.form.get('rencana_mulai', '').strip() or '-'
@@ -275,8 +330,8 @@ def edit_training(id):
 
 @app.route('/delete_training/<int:id>', methods=['POST'])
 def delete_training(id):
-    if 'username' not in session or session.get('role') != 'STAF HCD':
-        flash('Akses ditolak! Hanya Staf HCD yang dapat menghapus data.', 'danger')
+    if 'username' not in session or session.get('role') != 'HC ADMIN':
+        flash('Akses ditolak! Hanya HC Admin yang dapat menghapus data.', 'danger')
         return redirect(url_for('dashboard'))
     
     conn = get_db_connection()
