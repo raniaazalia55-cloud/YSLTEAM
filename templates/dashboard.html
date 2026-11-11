@@ -11,7 +11,7 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; font-size: 11px; }
         
-        /* Sidebar Styling Presisi */
+        /* Sidebar Styling */
         .sidebar { width: 220px; position: fixed; top: 0; bottom: 0; left: 0; background-color: #ffffff; border-right: 1px solid #e5e9f0; z-index: 100; padding: 15px 10px; display: flex; flex-direction: column; justify-content: space-between; }
         .sidebar-brand { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 20px; }
         .sidebar-brand .text-i { color: #0d6efd; }
@@ -170,13 +170,13 @@
                 <tbody>
                     {% for item in trainings %}
                     <tr>
-                        <td class="fw-bold text-primary">{{ item.KODE or item.kode_training or '-' }}</td>
-                        <td>{{ item.FUNGSI or item.fungsi or '-' }}</td>
-                        <td>{{ item.LEVEL_POSISI or item.level_posisi or '-' }}</td>
-                        <td>{{ item.LEVEL_TRAINING or item.level_training or '-' }}</td>
-                        <td>{{ item.NAMA_TRAINING or item.nama_training or item.nama or '-' }}</td>
-                        <td>{{ item.COMPETENCY or item.competency or '-' }}</td>
-                        <td>{{ item.ID_COMP or item.id_comp or '-' }}</td>
+                        <td class="fw-bold text-primary">{{ item.kode_training or item.KODE or '-' }}</td>
+                        <td>{{ item.fungsi or item.FUNGSI or '-' }}</td>
+                        <td>{{ item.level_posisi or item.LEVEL_POSISI or '-' }}</td>
+                        <td>{{ item.level_training or item.LEVEL_TRAINING or '-' }}</td>
+                        <td>{{ item.nama_training or item.nama or item.NAMA_TRAINING or '-' }}</td>
+                        <td>{{ item.competency or item.COMPETENCY or '-' }}</td>
+                        <td>{{ item.id_comp or item.ID_COMP or '-' }}</td>
                         <td>{{ item.BATCH or item.batch or '-' }}</td>
                         <td class="text-center">
                             <span class="badge {% if item.STATUS_COE == 'Approved' or item.STATUS_COE == 'Selesai' %}badge-status-green{% elif item.STATUS_COE == 'Proses' %}badge-status-blue{% else %}badge-status-grey{% endif %}">
@@ -223,7 +223,7 @@
                                                 <div class="mb-3">
                                                     <label class="form-label fw-bold text-secondary mb-0" style="font-size: 10px;">Training / Batch:</label>
                                                     <div class="fw-bold text-primary" style="font-size: 11px;">
-                                                        {{ item.KODE or item.kode_training }} - {{ item.NAMA_TRAINING or item.nama_training or item.nama }} ({{ item.BATCH or item.batch or 'B001' }})
+                                                        {{ item.kode_training or item.KODE }} - {{ item.nama_training or item.nama or item.NAMA_TRAINING }} ({{ item.BATCH or item.batch or 'B001' }})
                                                     </div>
                                                 </div>
 
@@ -295,134 +295,60 @@
         </div>
     </div>
 
-    <!-- MODAL MULTI-TAB: TAMBAH DATA TRAINING BARU -->
+    <!-- MODAL PENJADWALAN BATCH COE BARU (HANYA METODE PENJADWALAN COE) -->
     <div class="modal fade" id="addTrainingModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header modal-header-green py-2">
-                    <h6 class="modal-title fw-bold"><i class="bi bi-plus-circle me-1"></i> Tambah Data Training Baru</h6>
+                    <h6 class="modal-title fw-bold"><i class="bi bi-plus-circle me-1"></i> Penjadwalan Batch COE Baru</h6>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-3">
-                    <ul class="nav nav-pills nav-justified mb-3" id="addTrainingTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link border active" id="batch-tab" data-bs-toggle="tab" data-bs-target="#batch-tab-pane" type="button" role="tab">
-                                1. Penjadwalan Batch COE Baru
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link border" id="repository-tab" data-bs-toggle="tab" data-bs-target="#repository-tab-pane" type="button" role="tab">
-                                2. Master Training Baru (Repository)
-                            </button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content" id="addTrainingTabContent">
-                        <!-- TAB 1: PENJADWALAN BATCH COE BARU -->
-                        <div class="tab-pane fade show active" id="batch-tab-pane" role="tabpanel">
-                            <form action="{{ url_for('add_training') }}" method="POST">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Pilih Training (Repository):</label>
-                                    <select class="form-select form-select-sm" name="kode_training" required>
-                                        <option value="">-- Pilih Training --</option>
-                                        {% if repositories %}
-                                            {% for item in repositories %}
-                                            <option value="{{ item.kode_training }}">
-                                                {{ item.kode_training }} - {{ item.nama_training }}
-                                            </option>
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for item in trainings %}
-                                            <option value="{{ item.KODE or item.kode_training }}">
-                                                {{ item.KODE or item.kode_training }} - {{ item.NAMA_TRAINING or item.nama_training or item.nama }}
-                                            </option>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </select>
-                                </div>
-
-                                <div class="row g-2 mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Rencana Tanggal Mulai:</label>
-                                        <input type="date" name="rencana_mulai" class="form-control form-control-sm" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Rencana Tanggal Selesai:</label>
-                                        <input type="date" name="rencana_selesai" class="form-control form-control-sm" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Jumlah Partisipan:</label>
-                                        <input type="number" name="partisipan" class="form-control form-control-sm" placeholder="20" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">PIC Training:</label>
-                                        <input type="text" name="pic" class="form-control form-control-sm" placeholder="Nama PIC" required>
-                                    </div>
-                                </div>
-
-                                <div class="text-end mt-4">
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn btn-success btn-sm">Simpan Batch COE</button>
-                                </div>
-                            </form>
+                    <form action="{{ url_for('add_training') }}" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Pilih Training (Repository Master):</label>
+                            <select class="form-select form-select-sm" name="kode_training" required>
+                                <option value="">-- Pilih Training --</option>
+                                {% if repositories %}
+                                    {% for item in repositories %}
+                                    <option value="{{ item.kode_training }}">
+                                        {{ item.kode_training }} - {{ item.nama_training }}
+                                    </option>
+                                    {% endfor %}
+                                {% else %}
+                                    {% for item in trainings %}
+                                    <option value="{{ item.kode_training or item.KODE }}">
+                                        {{ item.kode_training or item.KODE }} - {{ item.nama_training or item.nama or item.NAMA_TRAINING }}
+                                    </option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
                         </div>
 
-                        <!-- TAB 2: MASTER TRAINING BARU (MENYIMPAN KE MASTER REPOSITORY) -->
-                        <div class="tab-pane fade" id="repository-tab-pane" role="tabpanel">
-                            <form action="{{ url_for('add_master_repository') }}" method="POST">
-                                <input type="hidden" name="redirect_to" value="dashboard">
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Kode Training:</label>
-                                        <input type="text" name="kode_training" class="form-control form-control-sm" placeholder="TR200" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Nama Training:</label>
-                                        <input type="text" name="nama_training" class="form-control form-control-sm" placeholder="PROSMAN" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Fungsi:</label>
-                                        <input type="text" name="fungsi" class="form-control form-control-sm" placeholder="MANAJEMEN">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">ID Fungsi:</label>
-                                        <input type="text" name="id_fungsi" class="form-control form-control-sm" placeholder="F200">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Level Posisi:</label>
-                                        <input type="text" name="level_posisi" class="form-control form-control-sm" placeholder="1">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">ID Level Posisi:</label>
-                                        <input type="text" name="id_level_posisi" class="form-control form-control-sm" placeholder="L200">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Level Training:</label>
-                                        <select name="level_training" class="form-select form-select-sm">
-                                            <option value="Teknis">Teknis</option>
-                                            <option value="Softskill">Softskill</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">ID Level Training:</label>
-                                        <input type="text" name="id_level_training" class="form-control form-control-sm" placeholder="T200">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Competency:</label>
-                                        <input type="text" name="competency" class="form-control form-control-sm" placeholder="BIAR JAGO">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">ID Competency Level:</label>
-                                        <input type="text" name="id_competency_level" class="form-control form-control-sm" placeholder="C200">
-                                    </div>
-                                </div>
-                                <div class="text-end mt-4">
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn btn-success btn-sm">Simpan Ke Master Repository</button>
-                                </div>
-                            </form>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Rencana Tanggal Mulai:</label>
+                                <input type="date" name="rencana_mulai" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Rencana Tanggal Selesai:</label>
+                                <input type="date" name="rencana_selesai" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Jumlah Partisipan:</label>
+                                <input type="number" name="partisipan" class="form-control form-control-sm" placeholder="20" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">PIC Training:</label>
+                                <input type="text" name="pic" class="form-control form-control-sm" placeholder="Nama PIC" required>
+                            </div>
                         </div>
-                    </div>
+
+                        <div class="text-end mt-4">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-success btn-sm">Simpan Batch COE</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

@@ -118,7 +118,6 @@ def repository():
 
 @app.route('/add_master_repository', methods=['POST'])
 def add_master_repository():
-    """Route khusus menyimpan Master Training Baru ke tabel master_repository"""
     if 'username' not in session:
         return redirect(url_for('login'))
     
@@ -173,6 +172,7 @@ def add_training():
         init_tables(conn)
         cursor = conn.cursor(dictionary=True)
         try:
+            # 1. Cari data master di master_repository
             cursor.execute("SELECT * FROM master_repository WHERE kode_training = %s LIMIT 1", (kode,))
             master = cursor.fetchone()
             
@@ -184,23 +184,27 @@ def add_training():
                 competency = master.get('competency', '-')
                 id_comp = master.get('id_competency_level', '-')
             else:
-                cursor.execute("SELECT * FROM list_training WHERE kode_training = %s OR KODE = %s LIMIT 1", (kode, kode))
+                # 2. Fallback aman ke list_training dengan nama kolom kode_training
+                cursor.execute("SELECT * FROM list_training WHERE kode_training = %s LIMIT 1", (kode,))
                 master = cursor.fetchone() or {}
-                nama = master.get('nama_training') or master.get('nama') or master.get('NAMA_TRAINING') or '-'
-                fungsi = master.get('fungsi') or master.get('FUNGSI') or '-'
-                level_posisi = master.get('level_posisi') or master.get('LEVEL_POSISI') or '-'
-                level_training = master.get('level_training') or master.get('LEVEL_TRAINING') or '-'
-                competency = master.get('competency') or master.get('COMPETENCY') or '-'
-                id_comp = master.get('id_comp') or master.get('ID_COMP') or '-'
+                nama = master.get('nama_training') or master.get('nama') or '-'
+                fungsi = master.get('fungsi') or '-'
+                level_posisi = master.get('level_posisi') or '-'
+                level_training = master.get('level_training') or '-'
+                competency = master.get('competency') or '-'
+                id_comp = master.get('id_comp') or '-'
 
+            # 3. Auto Generate 'no' field
             cursor.execute("SELECT MAX(CAST(`no` AS UNSIGNED)) as max_no FROM list_training")
             row_no = cursor.fetchone()
             next_no = (row_no['max_no'] + 1) if (row_no and row_no.get('max_no')) else 1
 
-            cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE kode_training = %s OR KODE = %s", (kode, kode))
+            # 4. Auto Generate Batch (B001, B002, dst)
+            cursor.execute("SELECT COUNT(*) as total FROM list_training WHERE kode_training = %s", (kode,))
             count_res = cursor.fetchone()
             batch_code = f"B{(count_res['total'] + 1):03d}" if count_res else "B001"
 
+            # 5. Insert Batch Baru ke Integrated Database Training
             sql = """
                 INSERT INTO list_training 
                 (`no`, kode_training, nama_training, nama, fungsi, level_posisi, level_training, competency, id_comp, BATCH, STATUS_COE, rencana_mulai, rencana_selesai, partisipan, PIC, status_planning)
