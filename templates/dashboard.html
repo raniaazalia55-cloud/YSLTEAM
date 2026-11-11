@@ -59,7 +59,7 @@
 </head>
 <body>
 
-    <!-- Sidebar Tampilan IPD System -->
+    <!-- Sidebar IPD System -->
     <div class="sidebar">
         <div>
             <div class="sidebar-brand">
@@ -195,11 +195,14 @@
                         </td>
 
                         <td class="text-center">
-                            <!-- TOMBOL BERI FEEDBACK DIBUKA UNTUK USER MAUPUN HC ADMIN -->
+                            <!-- TOMBOL BERI FEEDBACK HANYA MUNCUL UNTUK USER -->
+                            {% if session.get('role') != 'HC ADMIN' %}
                             <button class="btn-action-feedback mb-1" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ item.id }}">
                                 <i class="bi bi-chat-left-text-fill"></i> Feedback
                             </button>
+                            {% endif %}
 
+                            <!-- TOMBOL EDIT & HAPUS HANYA UNTUK HC ADMIN -->
                             {% if session.get('role') == 'HC ADMIN' %}
                             <button class="btn-action-edit" data-bs-toggle="modal" data-bs-target="#editModal{{ item.id }}">
                                 <i class="bi bi-pencil-square"></i> Edit
@@ -211,7 +214,8 @@
                             </form>
                             {% endif %}
 
-                            <!-- MODAL FORM FEEDBACK TRAINING -->
+                            <!-- MODAL FORM FEEDBACK TRAINING (FOR USER) -->
+                            {% if session.get('role') != 'HC ADMIN' %}
                             <div class="modal fade text-start" id="feedbackModal{{ item.id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
                                     <div class="modal-content">
@@ -283,6 +287,7 @@
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
 
                             <!-- MODAL EDIT FOR HC ADMIN -->
                             {% if session.get('role') == 'HC ADMIN' %}
@@ -357,10 +362,11 @@
             </table>
         </div>
 
-        <!-- TABEL REKAPITULASI FEEDBACK TRAINING (TAMPIL UNTUK USER MAUPUN HC ADMIN) -->
+        <!-- TABEL REKAPITULASI FEEDBACK TRAINING (HANYA DITAMPILKAN UNTUK HC ADMIN UNTUK MEMANTAU RESPONSE USER) -->
+        {% if session.get('role') == 'HC ADMIN' %}
         <div class="card border-0 shadow-sm mt-4">
             <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-bold"><i class="bi bi-chat-square-quote-fill me-2"></i> Rekapitulasi Hasil Feedback & Evaluasi Training</h6>
+                <h6 class="mb-0 fw-bold"><i class="bi bi-chat-square-quote-fill me-2"></i> Rekapitulasi Hasil Feedback & Evaluasi Training (Dari User)</h6>
                 <span class="badge bg-white text-success fw-bold">{{ feedbacks|length }} Respon Masuk</span>
             </div>
             <div class="card-body p-0">
@@ -400,6 +406,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 
     <!-- MODAL PENJADWALAN BATCH COE BARU (HANYA UNTUK HC ADMIN) -->
