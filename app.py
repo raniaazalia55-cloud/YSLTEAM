@@ -48,6 +48,7 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        selected_role = request.form.get('role', 'staf')
 
         conn = get_db_connection()
         if conn:
@@ -63,7 +64,7 @@ def login():
                     session['user_id'] = user.get('id')
                     session['username'] = user.get('username')
                     session['user_name'] = user.get('username')
-                    session['role'] = user.get('role', 'HCD SPECIALIST (HCD)')
+                    session['role'] = selected_role.upper()
                     return redirect(url_for('dashboard'))
 
         flash('Invalid Username or Password', 'danger')
